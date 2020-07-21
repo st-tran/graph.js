@@ -1,0 +1,34 @@
+<html>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+        <meta content="utf-8" http-equiv="encoding" />
+        <script type="text/javascript" src="./canvas.js"></script>
+        <script type="text/javascript" src="./graph.js"></script>
+        <script type="text/javascript" src="./util/eades.js"></script>
+    </head>
+    <body>
+        <canvas id="c" width="800" height="800"></canvas>
+        <script type="text/javascript">
+            const canvas = document.getElementById("c");
+            const ctx = canvas.getContext("2d");
+
+            const g = new Graph();
+            g.populateAdjListFromJSObject();
+            g.drawToCanvas(ctx);
+
+            canvas.addEventListener('mousedown', (e) => {
+                g.selectActiveNode([e.offsetX, e.offsetY]);
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                ctx.clearRect(0, 0, 800, 800);
+                g.moveNode([e.offsetX, e.offsetY]);
+                g.drawToCanvas(ctx);
+            });
+
+            canvas.addEventListener('mouseup', (e) => {
+                g.deselectActiveNode();
+            });
+        </script>
+    </body>
+</html>
