@@ -5,30 +5,37 @@
         <script type="text/javascript" src="./canvas.js"></script>
         <script type="text/javascript" src="./graph.js"></script>
         <script type="text/javascript" src="./util/eades.js"></script>
+        <script type="text/javascript" src="./algorithms/bfs.js"></script>
+        <script type="text/javascript" src="./algorithms/dfs.js"></script>
+        <script type="text/javascript" src="./util/queue.js"></script>
+        <script type="text/javascript" src="./util/sleep.js"></script>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                width: 100%;
+            }
+
+            #graph {
+                width: calc(100% - 80px);
+                height: 100%;
+            }
+        </style>
     </head>
     <body>
-        <canvas id="c" width="800" height="800"></canvas>
+        <div id="graphControls"></div>
+        <canvas id="graph"></canvas>
         <script type="text/javascript">
-            const canvas = document.getElementById("c");
+            const canvas = document.getElementById("graph");
             const ctx = canvas.getContext("2d");
+            const controlContainer = document.getElementById("graphControls");
 
-            const g = new Graph();
+            const g = new Graph(ctx, {}, "Disease Spread");
             g.populateAdjListFromJSObject();
-            g.drawToCanvas(ctx);
-
-            canvas.addEventListener('mousedown', (e) => {
-                g.selectActiveNode([e.offsetX, e.offsetY]);
-            });
-
-            canvas.addEventListener('mousemove', (e) => {
-                ctx.clearRect(0, 0, 800, 800);
-                g.moveNode([e.offsetX, e.offsetY]);
-                g.drawToCanvas(ctx);
-            });
-
-            canvas.addEventListener('mouseup', (e) => {
-                g.deselectActiveNode();
-            });
+            g.drawToCanvas();
+            g.addControls(controlContainer);
+            g.addAlgorithms(["BFS", "DFS"]);
         </script>
     </body>
 </html>
