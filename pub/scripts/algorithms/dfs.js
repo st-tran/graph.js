@@ -5,7 +5,7 @@ const dfs = async (graph, source) => {
     if (adjList.has(source)) {
         stack.push([source, adjList.get(source)]);
         stack[stack.length - 1][1].push("visited");
-        g.redrawAll();
+        graph.redrawAll();
     } else {
         throw `Cannot perform DFS on graph ${source} because ${source} is not in the graph.`;
     }
@@ -14,7 +14,6 @@ const dfs = async (graph, source) => {
 
     while (stack.length > 0) {
         const [vertex, vertexInfo] = stack.pop();
-        console.log(`Exploring ${vertex}`)
         vertexInfo[3].edgeColor = "red";
 
         for (const neighbour of vertexInfo[0].keys()) {
@@ -26,11 +25,10 @@ const dfs = async (graph, source) => {
 
             stack.push([neighbour, neighbourInfo]);
             stack[stack.length - 1][1][3].vertexBorderColor = "blue";
-            g.redrawAll();
+            graph.redrawAll();
             await sleep(500);
         }
-        //vertexInfo[3].edgeColor = "black";
-        g.redrawAll();
+        graph.redrawAll();
 
         if (vertexInfo.length == 4) {
             vertexInfo.push("explored");

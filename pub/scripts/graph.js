@@ -14,7 +14,6 @@ const exampleAdjacencyList = {
     b: { c: 7, e: 5, f: 1 },
     c: { e: 9 },
     d: { f: 2 },
-    f: { a: 6 },
     g: { b: 6 },
     h: { f: 2 },
     i: { f: 2 },
@@ -262,7 +261,7 @@ class Graph {
      * used internally.
      */
     redrawAll() {
-        this.canvas.clearRect(0, 0, canvas.width, canvas.height);
+        this.canvas.clearRect(0, 0, this.canvas.canvas.width, this.canvas.canvas.height);
         for (let [source, [targets, x, y]] of this.adjList.entries()) {
             for (const [target, weight] of targets.entries()) {
                 drawEdge(weight, [x, y], this.adjList.get(target).slice(1, 3), this.canvas, {
@@ -342,10 +341,10 @@ class Graph {
                     await sleep(1000);
                     switch (alg.toLowerCase()) {
                         case "bfs":
-                            bfs(g, "z");
+                            bfs(this, "a");
                             break;
                         case "dfs":
-                            dfs(g, "a");
+                            dfs(this, "a");
                             break;
                         default:
                             console.log(`Algorithm ${alg} not valid.`);

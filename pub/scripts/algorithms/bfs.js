@@ -5,7 +5,7 @@ const bfs = async (graph, source) => {
     if (adjList.has(source)) {
         queue.enqueue([source, adjList.get(source)]);
         queue.peek()[1].push("visited");
-        g.redrawAll();
+        graph.redrawAll();
     } else {
         throw `Cannot perform BFS on graph ${source} because ${source} is not in the graph.`;
     }
@@ -19,7 +19,7 @@ const bfs = async (graph, source) => {
             const neighbourInfo = adjList.get(neighbour);
                 queue.enqueue([neighbour, neighbourInfo]);
                 queue.peek()[1][3].vertexBorderColor = "blue";
-                g.redrawAll();
+                graph.redrawAll();
                 await sleep(500);
         }
         vertexInfo[3].edgeColor = "black";
