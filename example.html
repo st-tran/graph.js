@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+        <meta content="utf-8" http-equiv="encoding" />
+        <script type="text/javascript" src="./src/canvas.js"></script>
+        <script type="text/javascript" src="./src/graph.js"></script>
+        <script type="text/javascript" src="./src/util/eades.js"></script>
+        <script type="text/javascript" src="./src/algorithms/bfs.js"></script>
+        <script type="text/javascript" src="./src/algorithms/dfs.js"></script>
+        <script type="text/javascript" src="./src/util/queue.js"></script>
+        <script type="text/javascript" src="./src/util/sleep.js"></script>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                width: 100%;
+            }
+
+            .graph {
+                height: 100%;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .graphControls {
+                min-height: 0;
+                flex: 1;
+            }
+
+            #graph {
+                width: 100%;
+                min-height: 0;
+                    flex: 1;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="graph">
+            <div id="graphControls"></div>
+            <canvas id="graph"></canvas>
+        </div>
+        <script type="text/javascript">
+            const canvas = document.getElementById("graph");
+            const ctx = canvas.getContext("2d");
+            const controlContainer = document.getElementById("graphControls");
+
+            const g = new Graph(ctx, {}, "Disease Spread");
+            g.addControls(controlContainer);
+            g.addAlgorithms(["BFS", "DFS"]);
+            g.updateCanvasSize();
+            g.drawToCanvas();
+        </script>
+    </body>
+</html>

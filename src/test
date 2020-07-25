@@ -1,5 +1,0 @@
-const {Graph} = require('./graph');
-let g = new Graph()
-g.populateAdjListFromJSObject();
-console.log(g.adjList)
-console.log(g.adjList.get('a')[0])

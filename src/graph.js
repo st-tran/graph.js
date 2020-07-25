@@ -25,8 +25,13 @@ const exampleAdjacencyList = {
  * list using a nested Map.
  *
  * Structure:
- * adjList := {
- *      vertexName: [Map<connected edge name, connected edge weight>, x, y],
+ * adjList := Map{
+ *      vertexName: [
+ *          Map<connected edge name, connected edge weight>,
+ *          x, y,
+ *          vertex and edge styles,
+ *          auxiliary information used for algorithms
+ *          ],
  *      ...
  * }
  * where x, y represent the position of vertexName on a Cartesian plane.
@@ -60,31 +65,26 @@ class Graph {
         this.styledVertices = {};
         this.activeVertex = undefined;
 
-        this.updateCanvasSize();
         this.addListeners();
+        this.populateAdjListFromJSObject();
     }
 
-    redrawAll() {
-        this.canvas.clearRect(0, 0, canvas.width, canvas.height);
-        for (let [source, [targets, x, y]] of this.adjList.entries()) {
-            for (const [target, weight] of targets.entries()) {
-                drawEdge(weight, [x, y], this.adjList.get(target).slice(1, 3), this.canvas, {
-                    ...this.adjList.get(source)[3],
-                    directed: this.options.directed,
-                });
-            }
-        }
-
-        for (const source of this.adjList.keys()) {
-            drawVertex(
-                source,
-                this.adjList.get(source).slice(1, 3),
-                this.canvas,
-                this.adjList.get(source)[3]
-            );
-        }
+    /**
+     * Injects controls into a containing div.
+     */
+    addControls(container) {
+        const controlTitle = document.createElement("h1");
+        const controlList = document.createElement("ul");
+        controlList.setAttribute("id", `${this.graphTitle.toLowerCase()}-control-algs`);
+        controlTitle.innerHTML = this.graphTitle;
+        container.appendChild(controlTitle);
+        container.appendChild(controlList);
     }
 
+    /**
+     * Creates a new vertex with a randomly assigned position on the canvas,
+     * and adds it to the adjacency list.
+     */
     createNewVertex(vertexName) {
         let defaultVertexOptions = Object.keys(this.options)
             .filter(
@@ -110,6 +110,11 @@ class Graph {
         ]);
     }
 
+    /**
+     * Adds vertex-weight pairs to the Map representing this Graph.
+     *
+     * For the Alpha release, the data source is hardcoded.
+     */
     populateAdjListFromJSObject() {
         // Hardcoded data source for alpha release.
         const adjListData = exampleAdjacencyList;
@@ -138,6 +143,10 @@ class Graph {
         }
     }
 
+    /**
+     * Draws vertices to the canvas, applying a force-directed layout algorithm
+     * on first draw and bringing all vertices within canvas bounds.
+     */
     drawToCanvas() {
         if (!this.stable) {
             eades(this.adjList);
@@ -165,6 +174,10 @@ class Graph {
         }
     }
 
+    /**
+     * Applies styles to the vertex at position and returns true, or returns
+     * false if there is no vertex there.
+     */
     styleSelectedVertex(position) {
         const matching = Array.from(this.adjList.entries()).find(([, vertexList]) => {
             const vertexPosition = vertexList.slice(1, 3);
@@ -189,6 +202,10 @@ class Graph {
         this.styledVertices["selected"].push(matching);
     }
 
+    /**
+     * Moves the vertex at the selected position if there is one and returns
+     * true, or returns false if there is not one selected.
+     */
     moveVertex(newPosition) {
         const selected = this.styledVertices.selected;
         if (selected !== undefined && selected.length > 0) {
@@ -199,6 +216,10 @@ class Graph {
         return false;
     }
 
+    /**
+     * Moves all vertices and edges on the graph to the offset determined by
+     * difference between clicked location and the newPosition.
+     */
     moveGraph(newPosition) {
         const dx = newPosition[0] - this.positionOnClick[0];
         const dy = newPosition[1] - this.positionOnClick[1];
@@ -210,6 +231,10 @@ class Graph {
         this.positionOnClick[1] = newPosition[1];
     }
 
+    /**
+     * Removes all styles applied to vertices with a specified type (selected,
+     * algorithm types, etc.)
+     */
     unstyleVertices(type) {
         const vertices = this.styledVertices[type];
 
@@ -232,13 +257,29 @@ class Graph {
         this.styledVertices[type] = [];
     }
 
-    addControls(container) {
-        const controlTitle = document.createElement("h1");
-        const controlList = document.createElement("ul");
-        controlList.setAttribute("id", "control-algs");
-        controlTitle.innerHTML = this.graphTitle;
-        container.appendChild(controlTitle);
-        container.appendChild(controlList);
+    /**
+     * Draws all vertices and edges in this Graph on the canvas. Should only be
+     * used internally.
+     */
+    redrawAll() {
+        this.canvas.clearRect(0, 0, canvas.width, canvas.height);
+        for (let [source, [targets, x, y]] of this.adjList.entries()) {
+            for (const [target, weight] of targets.entries()) {
+                drawEdge(weight, [x, y], this.adjList.get(target).slice(1, 3), this.canvas, {
+                    ...this.adjList.get(source)[3],
+                    directed: this.options.directed,
+                });
+            }
+        }
+
+        for (const source of this.adjList.keys()) {
+            drawVertex(
+                source,
+                this.adjList.get(source).slice(1, 3),
+                this.canvas,
+                this.adjList.get(source)[3]
+            );
+        }
     }
 
     /**
@@ -247,6 +288,10 @@ class Graph {
      */
     updateCanvasSize() {
         const canvas = this.canvas.canvas;
+        for (const [, adjList] of this.adjList.entries()) {
+            adjList[1] = (adjList[1] / canvas.width) * canvas.offsetWidth;
+            adjList[2] = (adjList[2] / canvas.height) * canvas.offsetHeight;
+        }
         canvas.height = canvas.offsetHeight;
         canvas.width = canvas.offsetWidth;
         this.redrawAll();
@@ -285,26 +330,30 @@ class Graph {
     }
 
     /**
-    */
+     * Adds the algorithms in the array to the controls list.
+     */
     addAlgorithms(algorithms) {
-        document.getElementById("control-algs").append(...algorithms.map((alg) => {
-            const entry = document.createElement("li");
-            entry.setAttribute("id", `${alg}-button`);
-            entry.innerHTML = alg;
-            entry.addEventListener("click", async () => {
-                await sleep(1000);
-                switch (alg.toLowerCase()) {
-                    case "bfs":
-                        bfs(g, "a");
-                        break;
-                    case "dfs":
-                        dfs(g, "a");
-                        break;
-                    default:
-                        break;
-                }
-            });
-            return entry;
-        }));
+        document.getElementById(`${this.graphTitle.toLowerCase()}-control-algs`).append(
+            ...algorithms.map((alg) => {
+                const entry = document.createElement("li");
+                entry.setAttribute("id", `${alg}-button`);
+                entry.innerHTML = alg;
+                entry.addEventListener("click", async () => {
+                    await sleep(1000);
+                    switch (alg.toLowerCase()) {
+                        case "bfs":
+                            bfs(g, "z");
+                            break;
+                        case "dfs":
+                            dfs(g, "a");
+                            break;
+                        default:
+                            console.log(`Algorithm ${alg} not valid.`);
+                            break;
+                    }
+                });
+                return entry;
+            })
+        );
     }
 }

@@ -1,14 +1,14 @@
 # js-library-transt19
 ## Project Structure
     src
-    ├── graph.js                # Main interface for interacting with the library
-    ├── algorithms              # Contains the algorithms which can be run
-    │   ├── bfs.js              
-    │   └── dfs.js              
-    ├── assets                  # Styles for the displayed graph and components
-    │   └── .gitkeep            
-    ├── graph-components        # What makes up the graph
-    │   ├── graph-edge.js       
-    │   └── graph-vertex.js     
-    └── parser                  # Parser for ingestion of data to graph representation
-        └── parser.js           
+    ├── graph.js            # Main interface for interacting with the library
+    ├── algorithms          # Contains the algorithms which can be run on a Graph
+    │   ├── bfs.js              -> Breadth first search
+    │   ├── dfs.js              -> Depth first search
+    │   └── mst-prim.js         -> Spanning tree (not yet implemented)
+    ├── assets              # Styles for the displayed graph and components
+    ├── canvas.js           # Canvas utility functions for drawing Graphs
+    └── util                # Utility functions
+        ├── eades.js            -> Force-directed graph layout algorithm
+        ├── queue.js            -> FIFO Queue
+        └── sleep.js            -> Promise-based asynchronous code blocking
