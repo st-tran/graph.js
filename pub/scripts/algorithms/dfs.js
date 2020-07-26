@@ -19,6 +19,7 @@ const dfs = async (graph, source) => {
         for (const neighbour of vertexInfo[0].keys()) {
             const neighbourInfo = adjList.get(neighbour);
 
+            neighbourInfo[3].edgeColor = "red";
             if (neighbourInfo[neighbourInfo.length - 1] === "visited" || neighbourInfo[neighbourInfo.length - 1] === "explored") {
                 continue;
             }
@@ -28,7 +29,6 @@ const dfs = async (graph, source) => {
             graph.redrawAll();
             await sleep(500);
         }
-        graph.redrawAll();
 
         if (vertexInfo.length == 4) {
             vertexInfo.push("explored");

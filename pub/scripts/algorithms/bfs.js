@@ -14,15 +14,18 @@ const bfs = async (graph, source) => {
 
     while (!queue.isEmpty()) {
         const [, vertexInfo] = queue.dequeue();
-        vertexInfo[3].edgeColor = "blue";
+        vertexInfo[3].edgeColor = "red";
         for (const neighbour of vertexInfo[0].keys()) {
             const neighbourInfo = adjList.get(neighbour);
-                queue.enqueue([neighbour, neighbourInfo]);
-                queue.peek()[1][3].vertexBorderColor = "blue";
-                graph.redrawAll();
-                await sleep(500);
+            neighbourInfo[3].edgeColor = "red";
+            if ( neighbourInfo[neighbourInfo.length - 1] === "visited" || neighbourInfo[neighbourInfo.length - 1] === "explored") {
+                continue;
+            }
+            queue.enqueue([neighbour, neighbourInfo]);
+            queue.peek()[1][3].vertexBorderColor = "blue";
+            graph.redrawAll();
+            await sleep(500);
         }
-        vertexInfo[3].edgeColor = "black";
 
         if (vertexInfo.length == 4) {
             vertexInfo.push("explored");

@@ -2,23 +2,58 @@ body {
     margin: 0;
     padding: 0;
     height: 100%;
-    width: 100%;
+    width: 95%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 
 .graph {
-    height: 100%;
-    width: 100%;
+    box-sizing: border-box;
+    min-height: 50vh;
+    width: 50%;
     display: flex;
     flex-direction: column;
+    border-bottom: 1px solid black;
 }
 
 .graphControls {
     min-height: 0;
-    flex: 1;
+    text-align: center;
 }
 
-#graph {
+.graphControls > ul {
+    display: flex;
+    margin: 0 10px;
+    padding: 0;
+}
+
+.graphControls > ul > li {
+    display: inline-flex;
+    flex-grow: 1;
+    border: 1px solid black;
+    justify-content: center;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+}
+
+.graphControls > ul > li:hover {
+    background-color: rgba(255, 120, 0, 70);
+}
+
+.graphCanvas {
     width: 100%;
     min-height: 0;
     flex: 1;
+}
+
+.instructions {
+    width: 100%;
+}
+
+.instructions > * {
+    display: inline-block;
 }

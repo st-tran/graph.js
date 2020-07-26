@@ -75,12 +75,12 @@ const vec_displ = (adjList, v) => {
 
     for (const u of nonAdjacent) {
         const f = f_repul(adjList, u, v);
-        fNonAdj = [fNonAdj[0] + f[0], fNonAdj[1] + f[1]];
+        fNonAdj = [fNonAdj[0] + f[0] || 0, fNonAdj[1] + f[1] || 0];
     }
 
     for (const u of adjacent) {
         const f = f_spring(adjList, u, v);
-        fAdj = [fAdj[0] + f[0], fAdj[1] + f[1]];
+        fAdj = [fAdj[0] + f[0] || 0, fAdj[1] + f[1] || 0];
     }
 
     const y = [fNonAdj[0] + fAdj[0], fNonAdj[1] + fAdj[1]];
@@ -102,5 +102,6 @@ const eades = (adjList) => {
             adjList.get(v)[1] += cDispl * force[0];
             adjList.get(v)[2] += cDispl * force[1];
         }
+        console.log(JSON.stringify(Array.from(adjList.entries())))
     }
 };

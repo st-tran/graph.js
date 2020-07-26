@@ -1,11 +1,23 @@
+let diseaseGraph;
+let treeGraph;
 window.onload = () => {
-    const canvas = document.getElementById("graph");
-    const ctx = canvas.getContext("2d");
-    const controlContainer = document.getElementById("graphControls");
+    const diseaseGraphCanvas = document.getElementById("disease-graph");
+    const diseaseGraphCtx = diseaseGraphCanvas.getContext("2d");
+    const diseaseGraphControls = document.getElementById("disease-graph-controls");
 
-    const g = new Graph(ctx, {}, "Disease Spread");
-    g.addControls(controlContainer);
-    g.addAlgorithms(["BFS", "DFS"]);
-    g.updateCanvasSize();
-    g.drawToCanvas();
-}
+    diseaseGraph = new Graph(diseaseGraphCtx, {}, "Disease Spread");
+    diseaseGraph.populateAdjListFromJSObject(diseaseAdjacencyList);
+    diseaseGraph.addControls(diseaseGraphControls);
+    diseaseGraph.addAlgorithms(["BFS", "DFS"]);
+    diseaseGraph.drawToCanvas();
+
+    const treeGraphCanvas = document.getElementById("tree-graph");
+    const treeGraphCtx = treeGraphCanvas.getContext("2d");
+    const treeGraphControls = document.getElementById("tree-graph-controls");
+
+    treeGraph = new Graph(treeGraphCtx, {}, "Tree Example");
+    treeGraph.populateAdjListFromJSObject(treeAdjacencyList);
+    treeGraph.addControls(treeGraphControls);
+    treeGraph.addAlgorithms(["BFS", "DFS"]);
+    treeGraph.drawToCanvas();
+};

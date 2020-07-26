@@ -9,16 +9,27 @@ const exampleAdjacencyMatrix = [
     [3, 1, 0, 2, 3, 0],
 ];
 
-const exampleAdjacencyList = {
-    a: { b: 1, d: 6, e: 2, f: 3 },
-    b: { c: 7, e: 5, f: 1 },
-    c: { e: 9 },
-    d: { f: 2 },
-    g: { b: 6 },
-    h: { f: 2 },
-    i: { f: 2 },
+const diseaseAdjacencyList = {
+    a: [{ b: [1], d: [6], e: [2], f: [3] }],
+    b: [{ c: [7], e: [5], f: [1] }],
+    c: [{ e: [9] }],
+    d: [{ f: [2] }],
+    g: [{ b: [6] }],
 };
 
+//const treeAdjacencyList = {
+//    a: [{b: [3, 25, 25], c: [6, 75, 25]}, 50, 50],
+//    b: [{d: [1, 12.5, 12.5], e: [3, 37.5, 37.5]}, 25, 25],
+//    c: [{f: [8, 62.5, 62.5], g: [12, 87.5, 67.5]}, 75, 25],
+//}
+const treeAdjacencyList = {
+    a: [{b: [6, 50, 20], c: [3, 150, 20]}, 100, 10],
+    b: [{d: [3, 30, 50], e: [20, 70, 50]}],
+    c: [{f: [4, 130, 50], g: [20, 170, 50]}],
+    d: [{h: [10, 20, 70], i: [1, 40, 70]}],
+    g: [{j: [1, 190, 80]}],
+    j: [{k: [3, 220, 100]}],
+}
 /**
  * A mathematical graph with edges and vertices represented by an adjacency
  * list using a nested Map.
@@ -65,7 +76,6 @@ class Graph {
         this.activeVertex = undefined;
 
         this.addListeners();
-        this.populateAdjListFromJSObject();
     }
 
     /**
@@ -84,7 +94,7 @@ class Graph {
      * Creates a new vertex with a randomly assigned position on the canvas,
      * and adds it to the adjacency list.
      */
-    createNewVertex(vertexName) {
+    createNewVertex(vertexName, x, y) {
         let defaultVertexOptions = Object.keys(this.options)
             .filter(
                 (key) =>
@@ -101,12 +111,21 @@ class Graph {
             )
             .reduce((obj2, key) => ((obj2[key] = this.options[key]), obj2), {});
 
-        this.adjList.set(vertexName, [
-            new Map(),
-            Math.floor(Math.random() * this.canvas.canvas.width),
-            Math.floor(Math.random() * this.canvas.canvas.height),
-            Object.assign({}, defaultVertexOptions),
-        ]);
+        if (x === undefined || y === undefined) {
+            this.adjList.set(vertexName, [
+                new Map(),
+                Math.floor(Math.random() * this.canvas.canvas.width),
+                Math.floor(Math.random() * this.canvas.canvas.height),
+                Object.assign({}, defaultVertexOptions),
+            ]);
+        } else {
+            this.adjList.set(vertexName, [
+                new Map(),
+                x,
+                y,
+                Object.assign({}, defaultVertexOptions),
+            ]);
+        }
     }
 
     /**
@@ -114,26 +133,23 @@ class Graph {
      *
      * For the Alpha release, the data source is hardcoded.
      */
-    populateAdjListFromJSObject() {
-        // Hardcoded data source for alpha release.
-        const adjListData = exampleAdjacencyList;
-
+    populateAdjListFromJSObject(adjListData) {
         if (typeof adjListData !== "object" || adjListData === null) {
             throw "Adjacency list data source must be a JS object.";
         }
 
-        for (const [source, newEdges] of Object.entries(adjListData)) {
+        for (const [source, [newEdges, sourceX, sourceY]] of Object.entries(adjListData)) {
             // Bound Graph doesn't contain source
             if (!this.adjList.has(source)) {
-                this.createNewVertex(source);
+                this.createNewVertex(source, sourceX, sourceY);
             }
 
             // Add edges to bound Graph's adjacency list
             Object.entries(newEdges).map((edge) => {
-                const [target, weight] = edge;
+                const [target, [weight, x, y]] = edge;
                 // Target vertex doesn't exist; create a new one
                 if (!this.adjList.has(target)) {
-                    this.createNewVertex(target);
+                    this.createNewVertex(target, x, y);
                 }
 
                 // Set the source-target weight
@@ -148,7 +164,7 @@ class Graph {
      */
     drawToCanvas() {
         if (!this.stable) {
-            eades(this.adjList);
+            //eades(this.adjList);
             for (let [source, [, x, y]] of this.adjList.entries()) {
                 // Bring source vertex back in bounds
                 if (x < 0) {
@@ -261,11 +277,14 @@ class Graph {
      * used internally.
      */
     redrawAll() {
+        if (this.canvas.canvas.height !== this.canvas.canvas.offsetHeight || this.canvas.canvas.width !== this.canvas.canvas.offsetWidth) {
+            this.updateCanvasSize();
+        }
         this.canvas.clearRect(0, 0, this.canvas.canvas.width, this.canvas.canvas.height);
         for (let [source, [targets, x, y]] of this.adjList.entries()) {
             for (const [target, weight] of targets.entries()) {
                 drawEdge(weight, [x, y], this.adjList.get(target).slice(1, 3), this.canvas, {
-                    ...this.adjList.get(source)[3],
+                    ...this.adjList.get(target)[3],
                     directed: this.options.directed,
                 });
             }
