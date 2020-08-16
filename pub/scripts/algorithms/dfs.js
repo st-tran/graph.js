@@ -2,9 +2,19 @@ const dfs = async (graph, source) => {
     const stack = [];
     const adjList = graph.adjList;
 
+    if (!graph.styledVertices.hasOwnProperty("dfs")) {
+        graph.styledVertices.dfs = [];
+    }
+
+    graph.currentAlgorithm = "dfs";
+    graph.isAlgorithmRunning = true;
+
     if (adjList.has(source)) {
         stack.push([source, adjList.get(source)]);
-        stack[stack.length - 1][1].push("visited");
+
+        const info = stack[stack.length - 1][1];
+        info[info.length - 1] = "visited";
+
         graph.redrawAll();
     } else {
         throw `Cannot perform DFS on graph ${source} because ${source} is not in the graph.`;
@@ -12,12 +22,14 @@ const dfs = async (graph, source) => {
 
     await sleep(500);
 
+    const styledVertices = graph.styledVertices.dfs;
     while (stack.length > 0) {
         const [vertex, vertexInfo] = stack.pop();
         vertexInfo[3].edgeColor = "red";
 
         for (const neighbour of vertexInfo[0].keys()) {
             const neighbourInfo = adjList.get(neighbour);
+            styledVertices.push([vertex, vertexInfo]);
 
             neighbourInfo[3].edgeColor = "red";
             if (neighbourInfo[neighbourInfo.length - 1] === "visited" || neighbourInfo[neighbourInfo.length - 1] === "explored") {
@@ -30,10 +42,8 @@ const dfs = async (graph, source) => {
             await sleep(500);
         }
 
-        if (vertexInfo.length == 4) {
-            vertexInfo.push("explored");
-        } else {
-            vertexInfo[vertexInfo.length - 1] = "explored";
-        }
+        vertexInfo[vertexInfo.length - 1] = "explored";
     }
+
+    graph.adjList.forEach((v, k) => v[4] = "");
 }

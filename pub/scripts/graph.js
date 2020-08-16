@@ -17,19 +17,15 @@ const diseaseAdjacencyList = {
     g: [{ b: [6] }],
 };
 
-//const treeAdjacencyList = {
-//    a: [{b: [3, 25, 25], c: [6, 75, 25]}, 50, 50],
-//    b: [{d: [1, 12.5, 12.5], e: [3, 37.5, 37.5]}, 25, 25],
-//    c: [{f: [8, 62.5, 62.5], g: [12, 87.5, 67.5]}, 75, 25],
-//}
 const treeAdjacencyList = {
-    a: [{b: [6, 50, 20], c: [3, 150, 20]}, 100, 10],
-    b: [{d: [3, 30, 50], e: [20, 70, 50]}],
-    c: [{f: [4, 130, 50], g: [20, 170, 50]}],
-    d: [{h: [10, 20, 70], i: [1, 40, 70]}],
-    g: [{j: [1, 190, 80]}],
-    j: [{k: [3, 220, 100]}],
-}
+    a: [{ b: [6, 50, 20], c: [3, 150, 20] }, 100, 10],
+    b: [{ d: [3, 30, 50], e: [20, 70, 50] }],
+    c: [{ f: [4, 130, 50], g: [20, 170, 50] }],
+    d: [{ h: [10, 20, 70], i: [1, 40, 70] }],
+    g: [{ j: [1, 190, 80] }],
+    j: [{ k: [3, 220, 100] }],
+};
+
 /**
  * A mathematical graph with edges and vertices represented by an adjacency
  * list using a nested Map.
@@ -50,6 +46,11 @@ class Graph {
     constructor(canvas, options, graphTitle) {
         this.canvas = canvas;
         this.mouseDown = false;
+
+        this.isAlgorithmRunning = false;
+        this.currentAlgorithm = null;
+        this.mousePos = [0, 0];
+
         this.graphTitle = graphTitle || "Graph";
 
         // Set default options if not passed
@@ -117,6 +118,7 @@ class Graph {
                 Math.floor(Math.random() * this.canvas.canvas.width),
                 Math.floor(Math.random() * this.canvas.canvas.height),
                 Object.assign({}, defaultVertexOptions),
+                "",
             ]);
         } else {
             this.adjList.set(vertexName, [
@@ -124,6 +126,7 @@ class Graph {
                 x,
                 y,
                 Object.assign({}, defaultVertexOptions),
+                "",
             ]);
         }
     }
@@ -270,6 +273,7 @@ class Graph {
         }
 
         this.styledVertices[type] = [];
+        this.redrawAll();
     }
 
     /**
@@ -277,13 +281,17 @@ class Graph {
      * used internally.
      */
     redrawAll() {
-        if (this.canvas.canvas.height !== this.canvas.canvas.offsetHeight || this.canvas.canvas.width !== this.canvas.canvas.offsetWidth) {
+        //console.log(JSON.stringify(Array.from(this.adjList.entries())))
+        if (
+            this.canvas.canvas.height !== this.canvas.canvas.offsetHeight ||
+            this.canvas.canvas.width !== this.canvas.canvas.offsetWidth
+        ) {
             this.updateCanvasSize();
         }
         this.canvas.clearRect(0, 0, this.canvas.canvas.width, this.canvas.canvas.height);
         for (let [source, [targets, x, y]] of this.adjList.entries()) {
             for (const [target, weight] of targets.entries()) {
-                drawEdge(weight, [x, y], this.adjList.get(target).slice(1, 3), this.canvas, {
+                drawEdge(weight, [x, y], this.adjList.get(target).slice(1, 3), this.canvas, this.mousePos, {
                     ...this.adjList.get(target)[3],
                     directed: this.options.directed,
                 });
@@ -295,6 +303,7 @@ class Graph {
                 source,
                 this.adjList.get(source).slice(1, 3),
                 this.canvas,
+                this.mousePos,
                 this.adjList.get(source)[3]
             );
         }
@@ -325,22 +334,32 @@ class Graph {
         canvas.addEventListener("mousedown", (e) => {
             this.mouseDown = true;
             this.positionOnClick = [e.offsetX, e.offsetY];
-            this.styleSelectedVertex([e.offsetX, e.offsetY], "selected");
+            if (!this.isAlgorithmRunning) {
+                this.styleSelectedVertex([e.offsetX, e.offsetY], "selected");
+            } else {
+                this.unstyleVertices(this.currentAlgorithm);
+                this.currentAlgorithm = null;
+                this.isAlgorithmRunning = false;
+            }
             this.drawToCanvas();
         });
 
         canvas.addEventListener("mousemove", (e) => {
-            if (this.mouseDown) {
-                if (!this.moveVertex([e.offsetX, e.offsetY])) {
-                    this.moveGraph([e.offsetX, e.offsetY]);
+            const pos = [e.offsetX, e.offsetY];
+            if (this.mouseDown && !this.isAlgorithmRunning) {
+                if (!this.moveVertex(pos)) {
+                    this.moveGraph(pos);
                 }
                 this.drawToCanvas();
             }
+            this.mousePos = pos;
         });
 
         canvas.addEventListener("mouseup", () => {
             this.mouseDown = false;
-            this.unstyleVertices("selected");
+            if (!this.isAlgorithmRunning) {
+                this.unstyleVertices("selected");
+            }
             this.drawToCanvas();
         });
 
@@ -357,13 +376,18 @@ class Graph {
                 entry.setAttribute("id", `${alg}-button`);
                 entry.innerHTML = alg;
                 entry.addEventListener("click", async () => {
+                    if (this.isAlgorithmRunning) {
+                        this.unstyleVertices(this.currentAlgorithm);
+                        this.currentAlgorithm = null;
+                    }
+
                     await sleep(1000);
                     switch (alg.toLowerCase()) {
                         case "bfs":
-                            bfs(this, "a");
+                            await bfs(this, "a");
                             break;
                         case "dfs":
-                            dfs(this, "a");
+                            await dfs(this, "a");
                             break;
                         default:
                             console.log(`Algorithm ${alg} not valid.`);

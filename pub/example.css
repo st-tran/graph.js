@@ -4,15 +4,11 @@ body {
     height: 100%;
     width: 95%;
     margin: 0 auto;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
 }
 
 .graph {
     box-sizing: border-box;
-    min-height: 50vh;
-    width: 50%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     border-bottom: 1px solid black;
@@ -46,8 +42,6 @@ body {
 
 .graphCanvas {
     width: 100%;
-    min-height: 0;
-    flex: 1;
 }
 
 .instructions {
