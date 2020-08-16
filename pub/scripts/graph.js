@@ -26,6 +26,71 @@ const treeAdjacencyList = {
     j: [{ k: [3, 220, 100] }],
 };
 
+const mstExample = {
+    a: [{ b: [3, 50, 130], d: [6, 60, 70], e: [9, 200, 200] }, 20, 150],
+    b: [{ c: [2, 80, 100], d: [4, 60, 70], e: [9, 200, 200], f: [9, 210, 150] }],
+    c: [{ d: [2, 60, 70], g: [9, 210, 20], f: [8, 210, 150] }],
+    d: [{ g: [9, 210, 20] }],
+    e: [{ f: [8, 210, 150], j: [18, 300, 50] }],
+    f: [{ g: [7, 210, 20], i: [9, 260, 50], j: [10, 300, 50] }],
+    g: [{ h: [4, 260, 20], i: [5, 260, 50] }],
+    h: [{ i: [1, 260, 50], j: [13, 300, 50] }],
+    i: [{ j: [3, 300, 50] }],
+};
+
+const largeDiseaseGraph = {
+    a: [{ b: [1] }],
+    b: [{ c: [1] }],
+    c: [{ d: [1] }],
+    d: [{ e: [1] }],
+    e: [{ f: [1] }],
+    f: [{ g: [1] }],
+    g: [{ h: [1] }],
+    h: [{ i: [1] }],
+    i: [{ j: [1] }],
+    j: [{ k: [1] }],
+    k: [{ l: [1] }],
+    l: [{ m: [1] }],
+    m: [{ n: [1] }],
+    n: [{ o: [1] }],
+    o: [{ p: [1] }],
+    p: [{ q: [1] }],
+    q: [{ r: [1] }],
+    r: [{ s: [1] }],
+    s: [{ t: [1] }],
+    t: [{ u: [1] }],
+    u: [{ v: [1] }],
+    v: [{ w: [1] }],
+    w: [{ x: [1] }],
+    x: [{ y: [1] }],
+    y: [{ aa: [1] }],
+    aa: [{ bb: [1] }],
+    bb: [{ cc: [1] }],
+    cc: [{ dd: [1] }],
+    dd: [{ ee: [1] }],
+    ee: [{ ff: [1] }],
+    ff: [{ gg: [1] }],
+    gg: [{ hh: [1] }],
+    hh: [{ ii: [1] }],
+    ii: [{ jj: [1] }],
+    jj: [{ kk: [1] }],
+    kk: [{ ll: [1] }],
+    ll: [{ mm: [1] }],
+    mm: [{ nn: [1] }],
+    nn: [{ oo: [1] }],
+    oo: [{ pp: [1] }],
+    pp: [{ qq: [1] }],
+    qq: [{ rr: [1] }],
+    rr: [{ ss: [1] }],
+    ss: [{ tt: [1] }],
+    tt: [{ uu: [1] }],
+    uu: [{ vv: [1] }],
+    vv: [{ ww: [1] }],
+    ww: [{ xx: [1] }],
+    xx: [{ yy: [1] }],
+    yy: [{ z: [1] }],
+}
+
 /**
  * A mathematical graph with edges and vertices represented by an adjacency
  * list using a nested Map.
@@ -98,7 +163,9 @@ class Graph {
     createNewVertex(vertexName, x, y) {
         let defaultVertexOptions = Object.keys(this.options)
             .filter(
-                (key) =>
+                (
+                    key // Filter out invalid options.
+                ) =>
                     [
                         "vertexBorderColor",
                         "vertexRadius",
@@ -106,8 +173,6 @@ class Graph {
                         "textColor",
                         "textFont",
                         "vertexBorderWidth",
-                        "edgeColor",
-                        "edgeWidth",
                     ].indexOf(key) >= 0
             )
             .reduce((obj2, key) => ((obj2[key] = this.options[key]), obj2), {});
@@ -141,6 +206,10 @@ class Graph {
             throw "Adjacency list data source must be a JS object.";
         }
 
+        const defaultEdgeOptions = Object.keys(this.options).filter(
+            (key) => ["edgeColor", "edgeWidth"].indexOf(key) >= 0
+        ).reduce((obj2, key) => ((obj2[key] = this.options[key]), obj2), {});
+
         for (const [source, [newEdges, sourceX, sourceY]] of Object.entries(adjListData)) {
             // Bound Graph doesn't contain source
             if (!this.adjList.has(source)) {
@@ -156,7 +225,7 @@ class Graph {
                 }
 
                 // Set the source-target weight
-                this.adjList.get(source)[0].set(target, weight);
+                this.adjList.get(source)[0].set(target, [weight, Object.assign({}, defaultEdgeOptions)]);
             });
         }
     }
@@ -212,7 +281,6 @@ class Graph {
         }
 
         matching[1][3].textColor = "red";
-        matching[1][3].edgeColor = "red";
 
         if (!this.styledVertices.hasOwnProperty("selected")) {
             this.styledVertices.selected = [];
@@ -261,12 +329,14 @@ class Graph {
         }
 
         for (const [, vertexList] of vertices) {
+            Array.from(vertexList[0].entries()).forEach((v) => v[2] = {
+                edgeColor: "black",
+            });
             vertexList[3] = {
                 vertexRadius: 20,
                 vertexFillColor: "white",
                 textColor: "black",
                 textFont: "20px Arial",
-                edgeColor: "black",
                 vertexBorderColor: "black",
                 vertexBorderWidth: 3,
             };
@@ -281,7 +351,6 @@ class Graph {
      * used internally.
      */
     redrawAll() {
-        //console.log(JSON.stringify(Array.from(this.adjList.entries())))
         if (
             this.canvas.canvas.height !== this.canvas.canvas.offsetHeight ||
             this.canvas.canvas.width !== this.canvas.canvas.offsetWidth
@@ -290,11 +359,15 @@ class Graph {
         }
         this.canvas.clearRect(0, 0, this.canvas.canvas.width, this.canvas.canvas.height);
         for (let [source, [targets, x, y]] of this.adjList.entries()) {
-            for (const [target, weight] of targets.entries()) {
-                drawEdge(weight, [x, y], this.adjList.get(target).slice(1, 3), this.canvas, this.mousePos, {
-                    ...this.adjList.get(target)[3],
-                    directed: this.options.directed,
-                });
+            for (const [target, [weight, style]] of targets.entries()) {
+                drawEdge(
+                    weight,
+                    [x, y],
+                    this.adjList.get(target).slice(1, 3),
+                    this.canvas,
+                    this.mousePos,
+                    {...style, directed: this.options.directed}
+                );
             }
         }
 
@@ -388,6 +461,9 @@ class Graph {
                             break;
                         case "dfs":
                             await dfs(this, "a");
+                            break;
+                        case "mstprim":
+                            await mstprim(this, "a");
                             break;
                         default:
                             console.log(`Algorithm ${alg} not valid.`);

@@ -25,21 +25,20 @@ const dfs = async (graph, source) => {
     const styledVertices = graph.styledVertices.dfs;
     while (stack.length > 0) {
         const [vertex, vertexInfo] = stack.pop();
-        vertexInfo[3].edgeColor = "red";
 
         for (const neighbour of vertexInfo[0].keys()) {
             const neighbourInfo = adjList.get(neighbour);
             styledVertices.push([vertex, vertexInfo]);
 
-            neighbourInfo[3].edgeColor = "red";
+            vertexInfo[0].get(neighbour)[1].edgeColor = "red";
+            graph.redrawAll();
+            await sleep(500);
+
             if (neighbourInfo[neighbourInfo.length - 1] === "visited" || neighbourInfo[neighbourInfo.length - 1] === "explored") {
                 continue;
             }
 
             stack.push([neighbour, neighbourInfo]);
-            stack[stack.length - 1][1][3].vertexBorderColor = "blue";
-            graph.redrawAll();
-            await sleep(500);
         }
 
         vertexInfo[vertexInfo.length - 1] = "explored";

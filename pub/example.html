@@ -8,9 +8,11 @@
         <script type="text/javascript" src="./scripts/util/eades.js"></script>
         <script type="text/javascript" src="./scripts/algorithms/bfs.js"></script>
         <script type="text/javascript" src="./scripts/algorithms/dfs.js"></script>
+        <script type="text/javascript" src="./scripts/algorithms/mst-prim.js"></script>
         <script type="text/javascript" src="./scripts/util/queue.js"></script>
         <script type="text/javascript" src="./scripts/util/sleep.js"></script>
         <script type="text/javascript" src="./example.js"></script>
+        <script src="https://unpkg.com/tinyqueue@2.0.0/tinyqueue.min.js"></script>
     </head>
     <body>
         <div class="instructions">
@@ -27,6 +29,14 @@
         <div class="graph">
             <div class="graphControls" id="tree-graph-controls"></div>
             <canvas class="graphCanvas" id="tree-graph"></canvas>
+        </div>
+        <div class="graph">
+            <div class="graphControls" id="mst-graph-controls"></div>
+            <canvas class="graphCanvas" id="mst-graph"></canvas>
+        </div>
+        <div class="graph">
+            <div class="graphControls" id="ldg-graph-controls"></div>
+            <canvas class="graphCanvas" id="ldg-graph"></canvas>
         </div>
     </body>
 </html>
