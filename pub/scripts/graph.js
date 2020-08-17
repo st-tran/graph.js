@@ -1,14 +1,5 @@
 "use strict";
 
-const exampleAdjacencyMatrix = [
-    [0, 1, 0, 6, 2, 3],
-    [1, 0, 7, 0, 5, 1],
-    [0, 6, 0, 0, 9, 0],
-    [6, 0, 0, 0, 0, 2],
-    [2, 5, 9, 0, 0, 3],
-    [3, 1, 0, 2, 3, 0],
-];
-
 const diseaseAdjacencyList = {
     a: [{ b: [1], d: [6], e: [2], f: [3] }],
     b: [{ c: [7], e: [5], f: [1] }],

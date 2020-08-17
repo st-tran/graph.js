@@ -1,0 +1,81 @@
+* {
+    box-sizing: content-box;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 45px;
+    background-color: red;
+    visibility: hidden;
+}
+
+.main {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    margin-bottom: 100px;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-box {
+    position: relative;
+    width: 50vw;
+    height: 65%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 2;
+}
+
+.main-title {
+    font-size: 10vw;
+    font-family: "Bree Serif", serif;
+}
+
+.main-buttons {
+    width: 75%;
+    position: absolute;
+    top: calc(100% + 16px);
+    font-size: 32px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.main-buttons > span {
+    font-size: 2vw;
+    margin: 0 10px;
+}
+
+.main-graph {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    animation: main-graph 300s infinite;
+}
+
+@keyframes main-graph {
+    0% {
+        -webkit-transform: scale(0.5) rotate(360deg);
+    }
+    50% {
+        -webkit-transform: scale(1) rotate(0deg);
+    }
+    100% {
+        -webkit-transform: scale(0.5) rotate(360deg);
+    }
+}
+
+.main-graph-canvas {
+    height: 100%;
+    width: 100%;
+}
+
