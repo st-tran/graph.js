@@ -1,4 +1,5 @@
 * {
+    scroll-behavior: smooth;
     box-sizing: content-box;
 }
 
@@ -8,8 +9,34 @@ header {
     left: 0;
     width: 100%;
     height: 45px;
-    background-color: red;
-    visibility: hidden;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+    color: white;
+    background-color: #344a5e;
+    transition: top 0.2s ease;
+    z-index: 10;
+}
+
+.site-header-title {
+    font-size: 24px;
+    font-weight: 300;
+}
+
+.site-header-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.site-header-buttons > p {
+    margin-right: 40px;
+}
+
+.site-header-buttons > p:last-child {
+    margin-right: 20px;
 }
 
 .main {
@@ -79,3 +106,42 @@ header {
     width: 100%;
 }
 
+body > div:nth-of-type(n+3) {
+    margin: 0 auto;
+    max-width: 800px;
+}
+
+.graph > canvas {
+    width: 100%;
+}
+
+.graph > canvas:after {
+    display: block;
+    padding-bottom: 100%;
+}
+
+.graphControls {
+    min-height: 0;
+    text-align: center;
+}
+
+.graphControls > ul {
+    display: flex;
+    margin: 0 10px;
+    padding: 0;
+}
+
+.graphControls > ul > li {
+    display: inline-flex;
+    flex-grow: 1;
+    border: 1px solid black;
+    justify-content: center;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+}
+
+.graphControls > ul > li:hover {
+    background-color: rgba(255, 120, 0, 70);
+}

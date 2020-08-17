@@ -18,17 +18,33 @@
         <script type="text/javascript" src="./scripts/canvas.js"></script>
         <script type="text/javascript" src="./scripts/graph.js"></script>
         <script type="text/javascript" src="./scripts/util/eades.js"></script>
+        <script type="text/javascript" src="./scripts/algorithms/bfs.js"></script>
+        <script type="text/javascript" src="./scripts/algorithms/dfs.js"></script>
+        <script type="text/javascript" src="./scripts/algorithms/mst-prim.js"></script>
+        <script type="text/javascript" src="./scripts/util/queue.js"></script>
+        <script type="text/javascript" src="./scripts/util/sleep.js"></script>
+        <script src="https://unpkg.com/tinyqueue@2.0.0/tinyqueue.min.js"></script>
+        <script type="text/javascript" src="./example.js"></script>
         <script type="text/javascript" src="./main.js"></script>
     </head>
     <body>
-        <header>dsa</header>
+        <header>
+            <p class="site-header-title">graph.js</p>
+            <div class="site-header-buttons">
+                <p id="header-about">about</p>
+                <p id="header-examples">examples</p>
+                <p id="header-gettingstarted">getting started</p>
+            </div>
+        </header>
         <div class="main-graph">
             <canvas class="main-graph-canvas" id="main-graph"></canvas>
         </div>
         <div class="main">
             <div class="main-box">
                 <span class="main-title">graph.js</span>
-                <span class="main-desc">a JavaScript library to simplify mathematical graphs</span>
+                <span class="main-desc"
+                    >a JavaScript library to simplify the drawing of mathematical graphs</span
+                >
                 <div class="main-buttons">
                     <span>about</span>
                     <span>examples</span>
@@ -38,14 +54,36 @@
         </div>
         <div class="about">
             <h1>About</h1>
-            <p>This library was created by me, Steven Tran, for my CSC309 individual project (Summer 2020).
-                <h1>What is a graph</h1>
-                <p>Something something \(G=(V,E),\quad 0\leq |E|\leq \frac{|V|\left(|V|-1\right)}{2}\)
+            <p>
+                This library was created by me, Steven Tran, for my CSC309 individual project
+                (Summer 2020).
+            </p>
+            <h2>What is a graph</h2>
+            <p>
+                Something something \(G=(V,E),\quad 0\leq |E|\leq \frac{|V|\left(|V|-1\right)}{2}\)
+            </p>
         </div>
+
         <div class="examples">
             <h1>Examples</h1>
+            <div class="graph">
+                <div class="graphControls" id="disease-graph-controls"></div>
+                <canvas class="graphCanvas" id="disease-graph"></canvas>
+            </div>
+            <div class="graph">
+                <div class="graphControls" id="tree-graph-controls"></div>
+                <canvas class="graphCanvas" id="tree-graph"></canvas>
+            </div>
+            <div class="graph">
+                <div class="graphControls" id="mst-graph-controls"></div>
+                <canvas class="graphCanvas" id="mst-graph"></canvas>
+            </div>
+            <div class="graph">
+                <div class="graphControls" id="ldg-graph-controls"></div>
+                <canvas class="graphCanvas" id="ldg-graph"></canvas>
+            </div>
         </div>
-        <div class="get-started">
+        <div class="getting-started">
             <h1>Getting Started</h1>
             <p>Here are the functions associated with the library.</p>
             <ul>

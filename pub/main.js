@@ -1,6 +1,9 @@
 let mainDiv;
 let header;
 let mainHeight;
+let about;
+let examples;
+let gettingStarted;
 
 window.onload = () => {
     const mGraphCanvas = document.getElementById("main-graph");
@@ -17,6 +20,65 @@ window.onload = () => {
     header = document.querySelector("header");
     mainDiv = document.querySelector(".main");
     mainHeight = mainDiv.offsetHeight;
+
+    about = document.querySelector(".about");
+    examples = document.querySelector(".examples");
+    gettingStarted = document.querySelector(".getting-started");
+
+    document.querySelector("#header-about").onclick = () => {
+        console.log(about);
+        window.scrollTo(0, about.offsetTop);
+    };
+
+    document.querySelector("#header-examples").onclick = () => {
+        console.log(about);
+        window.scrollTo(0, examples.offsetTop);
+    };
+
+    document.querySelector("#header-gettingstarted").onclick = () => {
+        console.log(about);
+        window.scrollTo(0, gettingStarted.offsetTop);
+    };
+
+    const diseaseGraphCanvas = document.getElementById("disease-graph");
+    const diseaseGraphCtx = diseaseGraphCanvas.getContext("2d");
+    const diseaseGraphControls = document.getElementById("disease-graph-controls");
+
+    const diseaseGraph = new Graph(diseaseGraphCtx, {}, "Disease Spread");
+    diseaseGraph.populateAdjListFromJSObject(diseaseAdjacencyList);
+    diseaseGraph.addControls(diseaseGraphControls);
+    diseaseGraph.addAlgorithms(["BFS", "DFS"]);
+    diseaseGraph.drawToCanvas();
+
+    const treeGraphCanvas = document.getElementById("tree-graph");
+    const treeGraphCtx = treeGraphCanvas.getContext("2d");
+    const treeGraphControls = document.getElementById("tree-graph-controls");
+
+    const treeGraph = new Graph(treeGraphCtx, {}, "Tree Example");
+    treeGraph.populateAdjListFromJSObject(treeAdjacencyList);
+    treeGraph.addControls(treeGraphControls);
+    treeGraph.addAlgorithms(["BFS", "DFS"]);
+    treeGraph.drawToCanvas();
+
+    const mstGraphCanvas = document.getElementById("mst-graph");
+    const mstGraphCtx = mstGraphCanvas.getContext("2d");
+    const mstGraphControls = document.getElementById("mst-graph-controls");
+
+    const mstGraph = new Graph(mstGraphCtx, {}, "MST Example");
+    mstGraph.populateAdjListFromJSObject(mstExample);
+    mstGraph.addControls(mstGraphControls);
+    mstGraph.addAlgorithms(["MSTPRIM"]);
+    mstGraph.drawToCanvas();
+
+    const ldgGraphCanvas = document.getElementById("ldg-graph");
+    const ldgGraphCtx = ldgGraphCanvas.getContext("2d");
+    const ldgGraphControls = document.getElementById("ldg-graph-controls");
+
+    const ldgGraph = new Graph(ldgGraphCtx, {}, "Absolutely Massive Disease Graph Example");
+    ldgGraph.populateAdjListFromJSObject(largeDiseaseGraph);
+    ldgGraph.addControls(ldgGraphControls);
+    ldgGraph.addAlgorithms(["BFS", "DFS", "MSTPRIM"]);
+    ldgGraph.drawToCanvas();
 };
 
 window.onresize = () => {
@@ -24,10 +86,11 @@ window.onresize = () => {
 };
 
 window.onscroll = () => {
-    console.log(window.scrollY, mainHeight)
-    if (window.scrollY > mainHeight) {
-        header.style.visibility = "visible";
-    } else {
-        header.style.visibility = "hidden";
+    if (header) {
+        if (window.scrollY > mainHeight) {
+            header.style.top = "-45px";
+        } else {
+            header.style.top = "0px";
+        }
     }
 };
