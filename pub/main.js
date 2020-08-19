@@ -9,7 +9,7 @@ window.onload = () => {
     const mGraphCanvas = document.getElementById("main-graph");
     const mGraphCtx = mGraphCanvas.getContext("2d");
 
-    const mainGraph = new Graph(
+    const mainGraph = new gjs.Graph(
         mGraphCtx,
         { directed: false, edgeColor: "grey", edgeWidth: 1 },
         "graph.js main screen demo"
@@ -44,7 +44,7 @@ window.onload = () => {
     const diseaseGraphCtx = diseaseGraphCanvas.getContext("2d");
     const diseaseGraphControls = document.getElementById("disease-graph-controls");
 
-    const diseaseGraph = new Graph(diseaseGraphCtx, {}, "Disease Spread");
+    const diseaseGraph = new gjs.Graph(diseaseGraphCtx, {}, "Disease Spread");
     diseaseGraph.populateAdjListFromJSObject(diseaseAdjacencyList);
     diseaseGraph.addControls(diseaseGraphControls);
     diseaseGraph.addAlgorithms(["BFS", "DFS"]);
@@ -54,7 +54,7 @@ window.onload = () => {
     const treeGraphCtx = treeGraphCanvas.getContext("2d");
     const treeGraphControls = document.getElementById("tree-graph-controls");
 
-    const treeGraph = new Graph(treeGraphCtx, {}, "Tree Example");
+    const treeGraph = new gjs.Graph(treeGraphCtx, {}, "Tree Example");
     treeGraph.populateAdjListFromJSObject(treeAdjacencyList);
     treeGraph.addControls(treeGraphControls);
     treeGraph.addAlgorithms(["BFS", "DFS"]);
@@ -64,7 +64,7 @@ window.onload = () => {
     const mstGraphCtx = mstGraphCanvas.getContext("2d");
     const mstGraphControls = document.getElementById("mst-graph-controls");
 
-    const mstGraph = new Graph(mstGraphCtx, {}, "MST Example");
+    const mstGraph = new gjs.Graph(mstGraphCtx, {}, "MST Example");
     mstGraph.populateAdjListFromJSObject(mstExample);
     mstGraph.addControls(mstGraphControls);
     mstGraph.addAlgorithms(["MSTPRIM", "MSTKRUSKAL"]);
@@ -74,7 +74,7 @@ window.onload = () => {
     const ldgGraphCtx = ldgGraphCanvas.getContext("2d");
     const ldgGraphControls = document.getElementById("ldg-graph-controls");
 
-    const ldgGraph = new Graph(ldgGraphCtx, {}, "Absolutely Massive Disease Graph Example");
+    const ldgGraph = new gjs.Graph(ldgGraphCtx, {}, "Absolutely Massive Disease Graph Example");
     ldgGraph.populateAdjListFromJSObject(largeDiseaseGraph);
     ldgGraph.addControls(ldgGraphControls);
     ldgGraph.addAlgorithms(["BFS", "DFS", "MSTPRIM", "MSTKRUSKAL"]);
