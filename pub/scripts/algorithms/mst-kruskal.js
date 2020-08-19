@@ -1,46 +1,45 @@
-const mstprim = async (graph, source) => {
-    if (!graph.styledVertices.hasOwnProperty("mstprim")) {
-        graph.styledVertices.mstprim = [];
+const mstkruskal = async (graph, source) => {
+    if (!graph.styledVertices.hasOwnProperty("mstkruskal")) {
+        graph.styledVertices.mstkruskal = [];
     }
 
-    graph.currentAlgorithm = "mstprim";
+    graph.currentAlgorithm = "mstkruskal";
     graph.isAlgorithmRunning = true;
 
-    graph.adjList.forEach((v) => (v[4] = [Infinity, null]));
+    let turnedDirected = graph.options.directed;
+    if (turnedDirected) {
+        graph.options.directed = false;
+    }
 
-    const edges = [];
-    const p_queue = new TinyQueue([], (e1, e2) => e1[2] - e2[2]);
-    const root = graph.adjList.keys().next().value;
+    const ds = disjointSet();
+    const edges = Array.from(graph.adjList).reduce((a, v) => {
+        ds.add(v[1]);
 
-    Array.from(graph.adjList.get(root)[0]).forEach((v) => p_queue.push([root, v[0], v[1][0]]));
-    while (p_queue.length) {
-        const edge = p_queue.pop();
-        const [popStart, popEnd] = edge;
+        Array.from(v[1][0].entries()).forEach((v2) => a.push([v[0], v2[0], v2[1][0]]));
 
-        let unvisited = null;
-        if (graph.adjList.get(popStart)[4][1] === null) {
-            unvisited = popStart;
-        } else if (graph.adjList.get(popEnd)[4][1] === null) {
-            unvisited = popEnd;
-        }
+        return a;
+    }, new TinyQueue([], (e1, e2) => e1[2] - e2[2]));
 
-        if (unvisited) {
-            edges.push(edge);
-            graph.adjList.get(edge[0])[0].get(edge[1])[1].edgeColor = "red";
-            await sleep(100);
-            graph.redrawAll();
+    const sol = [];
+    while (edges.length) {
+        const edge = edges.pop();
+        const u = graph.adjList.get(edge[0]);
+        const v = graph.adjList.get(edge[1]);
 
-            graph.adjList.get(unvisited)[4][1] = unvisited;
-            Array.from(graph.adjList.get(unvisited)[0]).forEach((v) => {
-                if (
-                    graph.adjList.get(unvisited)[4][1] === null ||
-                    graph.adjList.get(v[0])[4][1] === null
-                ) {
-                    p_queue.push([unvisited, v[0], v[1][0]]);
-                }
-            });
+        if (!ds.connected(u, v)) {
+            sol.push(edge);
+            ds.union(u, v);
         }
     }
 
-    graph.adjList.forEach((v) => (v[4] = ""));
+    sol.forEach(async (e) => {
+        graph.adjList.get(e[0])[0].get(e[1])[1].edgeColor = "red";
+    });
+    graph.redrawAll();
+
+    if (turnedDirected) {
+        graph.options.directed = true;
+    }
+
+    graph.adjList.forEach((v) => {v[4] = ""; delete v[5]});
 };

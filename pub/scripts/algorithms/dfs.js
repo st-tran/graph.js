@@ -41,6 +41,9 @@ const dfs = async (graph, source) => {
             stack.push([neighbour, neighbourInfo]);
         }
 
+        vertexInfo[3].vertexColor = "blue";
+        graph.redrawAll();
+        await sleep(100);
         vertexInfo[vertexInfo.length - 1] = "explored";
     }
 

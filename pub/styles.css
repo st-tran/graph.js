@@ -3,6 +3,16 @@
     box-sizing: content-box;
 }
 
+.noselect {
+  -webkit-touch-callout: none; 
+    -webkit-user-select: none; 
+     -khtml-user-select: none; 
+       -moz-user-select: none; 
+        -ms-user-select: none; 
+            user-select: none; 
+                               
+}
+
 header {
     position: fixed;
     top: 0;
@@ -60,8 +70,8 @@ header {
 }
 
 .main-title {
-    font-size: 10vw;
     font-family: "Bree Serif", serif;
+    font-size: 10vw;
 }
 
 .main-buttons {
@@ -77,6 +87,12 @@ header {
 .main-buttons > span {
     font-size: 2vw;
     margin: 0 10px;
+    border-bottom: 3px solid gray;
+}
+
+.main-buttons > span:hover {
+    color: #344a5e;
+    border-bottom: 3px solid #344a5e;
 }
 
 .main-graph {
@@ -107,8 +123,11 @@ header {
 }
 
 body > div:nth-of-type(n+3) {
+    position: relative;
     margin: 0 auto;
     max-width: 800px;
+    background-color: white;
+    z-index: 2;
 }
 
 .graph > canvas {

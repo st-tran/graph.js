@@ -80,7 +80,7 @@ const largeDiseaseGraph = {
     ww: [{ xx: [1] }],
     xx: [{ yy: [1] }],
     yy: [{ z: [1] }],
-}
+};
 
 /**
  * A mathematical graph with edges and vertices represented by an adjacency
@@ -197,9 +197,9 @@ class Graph {
             throw "Adjacency list data source must be a JS object.";
         }
 
-        const defaultEdgeOptions = Object.keys(this.options).filter(
-            (key) => ["edgeColor", "edgeWidth"].indexOf(key) >= 0
-        ).reduce((obj2, key) => ((obj2[key] = this.options[key]), obj2), {});
+        const defaultEdgeOptions = Object.keys(this.options)
+            .filter((key) => ["edgeColor", "edgeWidth"].indexOf(key) >= 0)
+            .reduce((obj2, key) => ((obj2[key] = this.options[key]), obj2), {});
 
         for (const [source, [newEdges, sourceX, sourceY]] of Object.entries(adjListData)) {
             // Bound Graph doesn't contain source
@@ -216,7 +216,9 @@ class Graph {
                 }
 
                 // Set the source-target weight
-                this.adjList.get(source)[0].set(target, [weight, Object.assign({}, defaultEdgeOptions)]);
+                this.adjList
+                    .get(source)[0]
+                    .set(target, [weight, Object.assign({}, defaultEdgeOptions)]);
             });
         }
     }
@@ -320,9 +322,8 @@ class Graph {
         }
 
         for (const [, vertexList] of vertices) {
-            Array.from(vertexList[0].entries()).forEach((v) => v[2] = {
-                edgeColor: "black",
-            });
+            Array.from(vertexList[0].entries()).forEach((v) => v[1][1].edgeColor = "black");
+            console.log(vertexList[0]);
             vertexList[3] = {
                 vertexRadius: 20,
                 vertexFillColor: "white",
@@ -357,7 +358,7 @@ class Graph {
                     this.adjList.get(target).slice(1, 3),
                     this.canvas,
                     this.mousePos,
-                    {...style, directed: this.options.directed}
+                    { ...style, directed: this.options.directed }
                 );
             }
         }
@@ -455,6 +456,9 @@ class Graph {
                             break;
                         case "mstprim":
                             await mstprim(this, "a");
+                            break;
+                        case "mstkruskal":
+                            await mstkruskal(this, "a");
                             break;
                         default:
                             console.log(`Algorithm ${alg} not valid.`);

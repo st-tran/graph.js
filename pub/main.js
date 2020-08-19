@@ -27,17 +27,17 @@ window.onload = () => {
 
     document.querySelector("#header-about").onclick = () => {
         console.log(about);
-        window.scrollTo(0, about.offsetTop);
+        window.scrollTo(0, about.offsetTop - 60);
     };
 
     document.querySelector("#header-examples").onclick = () => {
         console.log(about);
-        window.scrollTo(0, examples.offsetTop);
+        window.scrollTo(0, examples.offsetTop - 60);
     };
 
     document.querySelector("#header-gettingstarted").onclick = () => {
         console.log(about);
-        window.scrollTo(0, gettingStarted.offsetTop);
+        window.scrollTo(0, gettingStarted.offsetTop - 60);
     };
 
     const diseaseGraphCanvas = document.getElementById("disease-graph");
@@ -67,7 +67,7 @@ window.onload = () => {
     const mstGraph = new Graph(mstGraphCtx, {}, "MST Example");
     mstGraph.populateAdjListFromJSObject(mstExample);
     mstGraph.addControls(mstGraphControls);
-    mstGraph.addAlgorithms(["MSTPRIM"]);
+    mstGraph.addAlgorithms(["MSTPRIM", "MSTKRUSKAL"]);
     mstGraph.drawToCanvas();
 
     const ldgGraphCanvas = document.getElementById("ldg-graph");
@@ -77,7 +77,7 @@ window.onload = () => {
     const ldgGraph = new Graph(ldgGraphCtx, {}, "Absolutely Massive Disease Graph Example");
     ldgGraph.populateAdjListFromJSObject(largeDiseaseGraph);
     ldgGraph.addControls(ldgGraphControls);
-    ldgGraph.addAlgorithms(["BFS", "DFS", "MSTPRIM"]);
+    ldgGraph.addAlgorithms(["BFS", "DFS", "MSTPRIM", "MSTKRUSKAL"]);
     ldgGraph.drawToCanvas();
 };
 
@@ -88,9 +88,9 @@ window.onresize = () => {
 window.onscroll = () => {
     if (header) {
         if (window.scrollY > mainHeight) {
-            header.style.top = "-45px";
-        } else {
             header.style.top = "0px";
+        } else {
+            header.style.top = "-45px";
         }
     }
 };

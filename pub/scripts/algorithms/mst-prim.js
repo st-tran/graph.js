@@ -6,12 +6,19 @@ const mstprim = async (graph, source) => {
     graph.currentAlgorithm = "mstprim";
     graph.isAlgorithmRunning = true;
 
+    let turnedDirected = graph.options.directed;
+    if (turnedDirected) {
+        graph.options.directed = false;
+    }
+
+    console.log(graph.adjList)
     graph.adjList.forEach((v) => (v[4] = [Infinity, null]));
 
     const edges = [];
     const p_queue = new TinyQueue([], (e1, e2) => e1[2] - e2[2]);
     const root = graph.adjList.keys().next().value;
 
+    const styledVertices = graph.styledVertices.mstprim;
     Array.from(graph.adjList.get(root)[0]).forEach((v) => p_queue.push([root, v[0], v[1][0]]));
     while (p_queue.length) {
         const edge = p_queue.pop();
@@ -26,6 +33,8 @@ const mstprim = async (graph, source) => {
 
         if (unvisited) {
             edges.push(edge);
+            // TODO: maintain arr of styled vertices here
+
             graph.adjList.get(edge[0])[0].get(edge[1])[1].edgeColor = "red";
             await sleep(100);
             graph.redrawAll();
@@ -42,13 +51,8 @@ const mstprim = async (graph, source) => {
         }
     }
 
-    console.log(edges);
-    //edges.forEach(async (e) => {
-    //    graph.adjList.get(e[0])[0].get(e[1])[1].edgeColor = "red";
-    //    await sleep(100);
-    //    graph.redrawAll();
-    //});
-    //edges.forEach(async (e) => {Array.from(graph.adjList.get(e[0])[0].entries()).forEach((v) => v[2].edgeColor = "red"); await })
-    //edges.forEach(async (e) => {graph.adjList.get(e[1])[3].edgeColor = "red"; await sleep(100); graph.redrawAll()});
     graph.adjList.forEach((v) => (v[4] = ""));
+    if (turnedDirected) {
+        graph.options.directed = true;
+    }
 };

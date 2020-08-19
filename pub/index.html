@@ -21,34 +21,36 @@
         <script type="text/javascript" src="./scripts/algorithms/bfs.js"></script>
         <script type="text/javascript" src="./scripts/algorithms/dfs.js"></script>
         <script type="text/javascript" src="./scripts/algorithms/mst-prim.js"></script>
+        <script type="text/javascript" src="./scripts/algorithms/mst-kruskal.js"></script>
         <script type="text/javascript" src="./scripts/util/queue.js"></script>
         <script type="text/javascript" src="./scripts/util/sleep.js"></script>
+        <script type="text/javascript" src="./scripts/util/disjointset.js"></script>
         <script src="https://unpkg.com/tinyqueue@2.0.0/tinyqueue.min.js"></script>
         <script type="text/javascript" src="./example.js"></script>
         <script type="text/javascript" src="./main.js"></script>
     </head>
     <body>
-        <header>
-            <p class="site-header-title">graph.js</p>
+        <header class="noselect">
+            <p onclick="window.scrollTo(0, 0)" class="site-header-title">graph.js</p>
             <div class="site-header-buttons">
                 <p id="header-about">about</p>
                 <p id="header-examples">examples</p>
                 <p id="header-gettingstarted">getting started</p>
             </div>
         </header>
-        <div class="main-graph">
+        <div class="main-graph noselect">
             <canvas class="main-graph-canvas" id="main-graph"></canvas>
         </div>
-        <div class="main">
+        <div class="main noselect">
             <div class="main-box">
                 <span class="main-title">graph.js</span>
                 <span class="main-desc"
                     >a JavaScript library to simplify the drawing of mathematical graphs</span
                 >
                 <div class="main-buttons">
-                    <span>about</span>
-                    <span>examples</span>
-                    <span>get started</span>
+                    <span onclick="window.scrollTo(0, about.offsetTop - 60)">about</span>
+                    <span onclick="window.scrollTo(0, examples.offsetTop - 60)">examples</span>
+                    <span onclick="window.scrollTo(0, gettingStarted.offsetTop - 60)">get started</span>
                 </div>
             </div>
         </div>
