@@ -26,17 +26,14 @@ window.onload = () => {
     gettingStarted = document.querySelector(".getting-started");
 
     document.querySelector("#header-about").onclick = () => {
-        console.log(about);
         window.scrollTo(0, about.offsetTop - 60);
     };
 
     document.querySelector("#header-examples").onclick = () => {
-        console.log(about);
         window.scrollTo(0, examples.offsetTop - 60);
     };
 
     document.querySelector("#header-gettingstarted").onclick = () => {
-        console.log(about);
         window.scrollTo(0, gettingStarted.offsetTop - 60);
     };
 
@@ -44,7 +41,7 @@ window.onload = () => {
     const diseaseGraphCtx = diseaseGraphCanvas.getContext("2d");
     const diseaseGraphControls = document.getElementById("disease-graph-controls");
 
-    const diseaseGraph = new gjs.Graph(diseaseGraphCtx, {}, "Disease Spread");
+    const diseaseGraph = new gjs.Graph(diseaseGraphCtx, { edgeColor: "#344a5e" }, "Disease Spread");
     diseaseGraph.populateAdjListFromJSObject(diseaseAdjacencyList);
     diseaseGraph.addControls(diseaseGraphControls);
     diseaseGraph.addAlgorithms(["BFS", "DFS"]);
@@ -70,15 +67,15 @@ window.onload = () => {
     mstGraph.addAlgorithms(["MSTPRIM", "MSTKRUSKAL"]);
     mstGraph.drawToCanvas();
 
-    const ldgGraphCanvas = document.getElementById("ldg-graph");
-    const ldgGraphCtx = ldgGraphCanvas.getContext("2d");
-    const ldgGraphControls = document.getElementById("ldg-graph-controls");
+    const rpgGraphCanvas = document.getElementById("rpg-graph");
+    const rpgGraphCtx = rpgGraphCanvas.getContext("2d");
+    const rpgGraphControls = document.getElementById("rpg-graph-controls");
 
-    const ldgGraph = new gjs.Graph(ldgGraphCtx, {}, "Absolutely Massive Disease Graph Example");
-    ldgGraph.populateAdjListFromJSObject(largeDiseaseGraph);
-    ldgGraph.addControls(ldgGraphControls);
-    ldgGraph.addAlgorithms(["BFS", "DFS", "MSTPRIM", "MSTKRUSKAL"]);
-    ldgGraph.drawToCanvas();
+    const rpgGraph = new gjs.Graph(rpgGraphCtx, {}, "Randomly Placed Graph");
+    rpgGraph.populateAdjListFromJSObject(randomlyPlacedGraph);
+    rpgGraph.addControls(rpgGraphControls);
+    rpgGraph.addAlgorithms(["BFS", "DFS", "MSTPRIM", "MSTKRUSKAL"]);
+    rpgGraph.drawToCanvas();
 };
 
 window.onresize = () => {

@@ -87,7 +87,7 @@ header {
 .main-buttons > span {
     font-size: 2vw;
     margin: 0 10px;
-    border-bottom: 3px solid gray;
+    border-bottom: 3px solid #344a5e;
 }
 
 .main-buttons > span:hover {
@@ -125,9 +125,19 @@ header {
 body > div:nth-of-type(n+3) {
     position: relative;
     margin: 0 auto;
-    max-width: 800px;
+    width: 800px;
     background-color: white;
     z-index: 2;
+    padding-bottom: 240px;
+}
+
+body > div:nth-of-type(n+3)>h1 {
+    color: #344a5e;
+    border-bottom: 3px solid #344a5e;
+}
+
+body > div:nth-of-type(n+3)>h2 {
+    color: #344a5e;
 }
 
 .graph > canvas {
@@ -139,9 +149,46 @@ body > div:nth-of-type(n+3) {
     padding-bottom: 100%;
 }
 
+.graph {
+    position: relative;
+}
+
+.hidden {
+    display: none;
+    top: 0;
+    height: 100%;
+    vertical-align: middle;
+    margin: 0;
+    max-width: calc((100vw - 800px) / 2 - 30px);
+    min-width: 40%;
+}
+
+.graph:hover .hidden {
+    display: flex;
+    position: absolute;
+}
+
+.hidden > code {
+    margin: auto 0;
+}
+
+.js {
+    right: 100%;
+    height: 100%;
+}
+
+.json {
+    left: 100%;
+    height: 100%;
+}
 .graphControls {
     min-height: 0;
     text-align: center;
+}
+
+.graphControls > h1 {
+    text-align: left;
+    color: #344a5e;
 }
 
 .graphControls > ul {
@@ -154,6 +201,7 @@ body > div:nth-of-type(n+3) {
     display: inline-flex;
     flex-grow: 1;
     border: 1px solid black;
+    padding: 10px 0;
     justify-content: center;
     -webkit-user-select: none; /* Safari */
     -moz-user-select: none; /* Firefox */
@@ -162,5 +210,6 @@ body > div:nth-of-type(n+3) {
 }
 
 .graphControls > ul > li:hover {
-    background-color: rgba(255, 120, 0, 70);
+    color: white;
+    background-color: #344a5e;
 }

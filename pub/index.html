@@ -15,6 +15,14 @@
             href="https://fonts.googleapis.com/css2?family=Bree+Serif&display=swap"
             rel="stylesheet"
         />
+        <link
+            rel="stylesheet"
+            href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/styles/default.min.css"
+        />
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/highlight.min.js"></script>
+        <script>
+            hljs.initHighlightingOnLoad();
+        </script>
         <script type="text/javascript" src="./graph-lib.js"></script>
         <script type="text/javascript" src="./example-graphs.js"></script>
         <script type="text/javascript" src="./main.js"></script>
@@ -40,7 +48,9 @@
                 <div class="main-buttons">
                     <span onclick="window.scrollTo(0, about.offsetTop - 60)">about</span>
                     <span onclick="window.scrollTo(0, examples.offsetTop - 60)">examples</span>
-                    <span onclick="window.scrollTo(0, gettingStarted.offsetTop - 60)">get started</span>
+                    <span onclick="window.scrollTo(0, gettingStarted.offsetTop - 60)"
+                        >get started</span
+                    >
                 </div>
             </div>
         </div>
@@ -50,29 +60,213 @@
                 This library was created by me, Steven Tran, for my CSC309 individual project
                 (Summer 2020).
             </p>
-            <h2>What is a graph</h2>
             <p>
-                Something something \(G=(V,E),\quad 0\leq |E|\leq \frac{|V|\left(|V|-1\right)}{2}\)
+                A graph is a structure described by a set of vertices/nodes and edges connecting
+                them. Each edge may have a specific direction if the graph is directed, and they may
+                have a weight if the graph is weighted. Formally:
             </p>
+            <ul>
+                <li>\(V\) represents the set of vertices</li>
+                <li>
+                    \(E\) represents the set of edges connecting a vertex \(u\) to another vertex
+                    \(v\), where \(u,v\in V\)
+                </li>
+                <ul>
+                    <li>
+                        Note that \(u\) and \(v\) don't need to be distinct vertices (we can have
+                        "self loops").
+                    </li>
+                </ul>
+                <li>Together, a graph induced by the above sets is described as \(G=(V,E)\).</li>
+                <li>
+                    If the graph is weighted, there is an associated function \(w\colon
+                    E\to\mathbb{R}\) which maps each edge to a real-valued weight.
+                </li>
+            </ul>
+            <p>
+                Graphs may be represented in a number of ways, but this library uses adjacency lists
+                for the underlying representation. In other words, it takes a specifically-formatted
+                JS object as input and displays the corresponding graph on an HTML5 canvas.
+            </p>
+            <h2>Features</h2>
+            <ul>
+                <li>
+                    It's very easy to create a graph. Create a JS object containing the data, make
+                    ~5 library calls, and you'll have a graph displayed on your canvas -- see below!
+                </li>
+                <li>
+                    Any DOM elements created by the library contain barebone styles and do not have
+                    complicated structures so you can easily style it to your liking.
+                </li>
+                <li>Algorithms can be added on externally and applied to the graph.</li>
+            </ul>
         </div>
 
         <div class="examples">
             <h1>Examples</h1>
+            <p>
+                Below you can see some graphs generated using this library. If you hover over the
+                canvas container, you will see the JavaScript code used to create it, along with the
+                corresponding input data.
+            </p>
             <div class="graph">
                 <div class="graphControls" id="disease-graph-controls"></div>
                 <canvas class="graphCanvas" id="disease-graph"></canvas>
+                <pre
+                    class="hidden json"
+                ><code class="javascript">// Adjacency list corresponding to this graph
+const diseaseAdjacencyList = {
+    a: [{ b: [1], d: [6], e: [2], f: [3] }],
+    b: [{ c: [7], e: [5], f: [1] }],
+    c: [{ e: [9] }],
+    d: [{ f: [2] }],
+    g: [{ b: [6] }],
+};</code></pre>
+                <pre class="hidden js"><code class="javascript">// Select relevant divs on page
+const diseaseGraphCanvas = document.getElementById("disease-graph");
+const diseaseGraphCtx = diseaseGraphCanvas.getContext("2d");
+const diseaseGraphControls = document.getElementById("disease-graph-controls");
+
+// Instantiate graph, bind it to the canvas
+const diseaseGraph = new gjs.Graph(diseaseGraphCtx, { edgeColor: "#344a5e" }, "Disease Spread");
+
+// Process the adjacency list (shown on right)
+diseaseGraph.populateAdjListFromJSObject(diseaseAdjacencyList);
+
+// Add controls to the container
+diseaseGraph.addControls(diseaseGraphControls);
+diseaseGraph.addAlgorithms(["BFS", "DFS"]);
+
+// Draw the graph to the canvas
+diseaseGraph.drawToCanvas();</code></pre>
             </div>
             <div class="graph">
                 <div class="graphControls" id="tree-graph-controls"></div>
                 <canvas class="graphCanvas" id="tree-graph"></canvas>
+                <pre
+                    class="hidden json"
+                ><code class="javascript">// Adjacency list corresponding to this graph
+const treeAdjacencyList = {
+    a: [{ b: [6, 50, 20], c: [3, 150, 20] }, 100, 10],
+    b: [{ d: [3, 30, 50], e: [20, 70, 50] }],
+    c: [{ f: [4, 130, 50], g: [20, 170, 50] }],
+    d: [{ h: [10, 20, 70], i: [1, 40, 70] }],
+    g: [{ j: [1, 190, 80] }],
+    j: [{ k: [3, 220, 100] }],
+};
+</code></pre>
+                <pre class="hidden js"><code class="javascript">// Select relevant divs on page
+const treeGraphCanvas = document.getElementById("tree-graph");
+const treeGraphCtx = treeGraphCanvas.getContext("2d");
+const treeGraphControls = document.getElementById("tree-graph-controls");
+
+const treeGraph = new gjs.Graph(treeGraphCtx, {}, "Tree Example");
+treeGraph.populateAdjListFromJSObject(treeAdjacencyList);
+treeGraph.addControls(treeGraphControls);
+treeGraph.addAlgorithms(["BFS", "DFS"]);
+treeGraph.drawToCanvas();
+</code></pre>
             </div>
             <div class="graph">
                 <div class="graphControls" id="mst-graph-controls"></div>
                 <canvas class="graphCanvas" id="mst-graph"></canvas>
+                <pre
+                    class="hidden json"
+                ><code class="javascript">// Adjacency list corresponding to this graph
+const mstExample = {
+    a: [{ b: [3, 50, 130], d: [6, 60, 70], e: [9, 200, 200] }, 20, 150],
+    b: [{ c: [2, 80, 100], d: [4, 60, 70], e: [9, 200, 200], f: [9, 210, 150] }],
+    c: [{ d: [2, 60, 70], g: [9, 210, 20], f: [8, 210, 150] }],
+    d: [{ g: [9, 210, 20] }],
+    e: [{ f: [8, 210, 150], j: [18, 300, 50] }],
+    f: [{ g: [7, 210, 20], i: [9, 260, 50], j: [10, 300, 50] }],
+    g: [{ h: [4, 260, 20], i: [5, 260, 50] }],
+    h: [{ i: [1, 260, 50], j: [13, 300, 50] }],
+    i: [{ j: [3, 300, 50] }],
+};
+</code></pre>
+                <pre class="hidden js"><code class="javascript">// Select relevant divs on page
+const mstGraphCanvas = document.getElementById("mst-graph");
+const mstGraphCtx = mstGraphCanvas.getContext("2d");
+const mstGraphControls = document.getElementById("mst-graph-controls");
+
+const mstGraph = new gjs.Graph(mstGraphCtx, {}, "MST Example");
+mstGraph.populateAdjListFromJSObject(mstExample);
+mstGraph.addControls(mstGraphControls);
+mstGraph.addAlgorithms(["MSTPRIM", "MSTKRUSKAL"]);
+mstGraph.drawToCanvas();
+</code></pre>
             </div>
             <div class="graph">
-                <div class="graphControls" id="ldg-graph-controls"></div>
-                <canvas class="graphCanvas" id="ldg-graph"></canvas>
+                <div class="graphControls" id="rpg-graph-controls"></div>
+                <canvas class="graphCanvas" id="rpg-graph"></canvas>
+                <pre
+                    class="hidden json"
+                ><code class="javascript">// Adjacency list corresponding to this graph
+const randomlyPlacedGraph = {
+    a: [{ b: [1] }],
+    b: [{ c: [1] }],
+    c: [{ d: [1] }],
+    d: [{ e: [1] }],
+    e: [{ f: [1] }],
+    f: [{ g: [1] }],
+    g: [{ h: [1] }],
+    h: [{ i: [1] }],
+    i: [{ j: [1] }],
+    j: [{ k: [1] }],
+    k: [{ l: [1] }],
+    l: [{ m: [1] }],
+    m: [{ n: [1] }],
+    n: [{ o: [1] }],
+    o: [{ p: [1] }],
+    p: [{ q: [1] }],
+    q: [{ r: [1] }],
+    r: [{ s: [1] }],
+    s: [{ t: [1] }],
+    t: [{ u: [1] }],
+    u: [{ v: [1] }],
+    v: [{ w: [1] }],
+    w: [{ x: [1] }],
+    x: [{ y: [1] }],
+    y: [{ aa: [1] }],
+    aa: [{ bb: [1] }],
+    bb: [{ cc: [1] }],
+    cc: [{ dd: [1] }],
+    dd: [{ ee: [1] }],
+    ee: [{ ff: [1] }],
+    ff: [{ gg: [1] }],
+    gg: [{ hh: [1] }],
+    hh: [{ ii: [1] }],
+    ii: [{ jj: [1] }],
+    jj: [{ kk: [1] }],
+    kk: [{ ll: [1] }],
+    ll: [{ mm: [1] }],
+    mm: [{ nn: [1] }],
+    nn: [{ oo: [1] }],
+    oo: [{ pp: [1] }],
+    pp: [{ qq: [1] }],
+    qq: [{ rr: [1] }],
+    rr: [{ ss: [1] }],
+    ss: [{ tt: [1] }],
+    tt: [{ uu: [1] }],
+    uu: [{ vv: [1] }],
+    vv: [{ ww: [1] }],
+    ww: [{ xx: [1] }],
+    xx: [{ yy: [1] }],
+    yy: [{ z: [1] }],
+};
+</code></pre>
+                <pre class="hidden js"><code class="javascript">// Select relevant divs on page
+const rpgGraphCanvas = document.getElementById("rpg-graph");
+const rpgGraphCtx = rpgGraphCanvas.getContext("2d");
+const rpgGraphControls = document.getElementById("rpg-graph-controls");
+
+const rpgGraph = new gjs.Graph(rpgGraphCtx, {}, "Randomly Placed Graph");
+rpgGraph.populateAdjListFromJSObject(randomlyPlacedGraph);
+rpgGraph.addControls(rpgGraphControls);
+rpgGraph.addAlgorithms(["BFS", "DFS", "MSTPRIM", "MSTKRUSKAL"]);
+rpgGraph.drawToCanvas();
+</code></pre>
             </div>
         </div>
         <div class="getting-started">

@@ -27,7 +27,7 @@ const mstExample = {
     i: [{ j: [3, 300, 50] }],
 };
 
-const largeDiseaseGraph = {
+const randomlyPlacedGraph = {
     a: [{ b: [1] }],
     b: [{ c: [1] }],
     c: [{ d: [1] }],

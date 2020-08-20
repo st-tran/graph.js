@@ -60,7 +60,7 @@ const gjs = {
         addControls(container) {
             const controlTitle = document.createElement("h1");
             const controlList = document.createElement("ul");
-            controlList.setAttribute("id", `${this.graphTitle.toLowerCase()}-control-algs`);
+            controlList.setAttribute("id", `${this.graphTitle.toLowerCase().replace(" ", "-")}-control-algs`);
             controlTitle.innerHTML = this.graphTitle;
             container.appendChild(controlTitle);
             container.appendChild(controlList);
@@ -242,7 +242,6 @@ const gjs = {
 
             for (const [, vertexList] of vertices) {
                 Array.from(vertexList[0].entries()).forEach((v) => (v[1][1].edgeColor = "black"));
-                console.log(vertexList[0]);
                 vertexList[3] = {
                     vertexRadius: 20,
                     vertexFillColor: "white",
@@ -354,7 +353,7 @@ const gjs = {
          * Adds the algorithms in the array to the controls list.
          */
         addAlgorithms(algorithms) {
-            document.getElementById(`${this.graphTitle.toLowerCase()}-control-algs`).append(
+            document.getElementById(`${this.graphTitle.toLowerCase().replace(" ", "-")}-control-algs`).append(
                 ...algorithms.map((alg) => {
                     const entry = document.createElement("li");
                     entry.setAttribute("id", `${alg}-button`);
@@ -488,7 +487,7 @@ const gjs = {
     },
     algorithms: {
         bfs: async (graph, source) => {
-            const queue = new gjs.queue.Queue();
+            const queue = new gjs.Queue();
             const adjList = graph.adjList;
 
             if (!graph.styledVertices.hasOwnProperty("bfs")) {
@@ -571,7 +570,7 @@ const gjs = {
 
                     vertexInfo[0].get(neighbour)[1].edgeColor = "red";
                     graph.redrawAll();
-                    await gjs.sleep(100);
+                    await gjs.sleep(500);
 
                     if (
                         neighbourInfo[neighbourInfo.length - 1] === "visited" ||
@@ -585,14 +584,14 @@ const gjs = {
 
                 vertexInfo[3].vertexColor = "blue";
                 graph.redrawAll();
-                await gjs.sleep(100);
+                await gjs.sleep(200);
 
                 vertexInfo[vertexInfo.length - 1] = "explored";
             }
 
             graph.adjList.forEach((v, k) => (v[4] = ""));
         },
-        mstkruskal: async (graph, source) => {
+        mstkruskal: async (graph) => {
             if (!graph.styledVertices.hasOwnProperty("mstkruskal")) {
                 graph.styledVertices.mstkruskal = [];
             }
@@ -615,6 +614,7 @@ const gjs = {
             }, new gjs.pqueue.TinyQueue([], (e1, e2) => e1[2] - e2[2]));
 
             const sol = [];
+            const styledVertices = graph.styledVertices.mstkruskal;
             while (edges.length) {
                 const edge = edges.pop();
                 const u = graph.adjList.get(edge[0]);
@@ -623,13 +623,12 @@ const gjs = {
                 if (!ds.connected(u, v)) {
                     sol.push(edge);
                     ds.union(u, v);
+                    graph.adjList.get(edge[0])[0].get(edge[1])[1].edgeColor = "red";
+                    styledVertices.push([edge[0], u]);
+                    await gjs.sleep(200);
+                    graph.redrawAll();
                 }
             }
-
-            sol.forEach(async (e) => {
-                graph.adjList.get(e[0])[0].get(e[1])[1].edgeColor = "red";
-            });
-            graph.redrawAll();
 
             if (turnedDirected) {
                 graph.options.directed = true;
@@ -640,7 +639,7 @@ const gjs = {
                 delete v[5];
             });
         },
-        mstprim: async (graph, source) => {
+        mstprim: async (graph) => {
             if (!graph.styledVertices.hasOwnProperty("mstprim")) {
                 graph.styledVertices.mstprim = [];
             }
@@ -676,7 +675,7 @@ const gjs = {
 
                 if (unvisited) {
                     edges.push(edge);
-                    // TODO: maintain arr of styled vertices here
+                    styledVertices.push([popStart, graph.adjList.get(popStart)]);
 
                     graph.adjList.get(edge[0])[0].get(edge[1])[1].edgeColor = "red";
                     await gjs.sleep(100);
@@ -807,60 +806,56 @@ const gjs = {
      * of the CC0 1.0 Universal legal code:
      * http://creativecommons.org/publicdomain/zero/1.0/legalcode
      */
-    queue:
+    Queue:
         /* Creates a new queue. A queue is a first-in-first-out (FIFO) data structure -
          * items are added to the end of the queue and removed from the front.
          */
-        function Queue() {
-            // initialise the queue and offset
-            var queue = [];
-            var offset = 0;
+        class {
+            constructor() {
+                this.queue = [];
+                this.offset = 0;
+            }
 
             // Returns the length of the queue.
-            this.getLength = function () {
-                return queue.length - offset;
-            };
+            getLength() {
+                return this.queue.length - this.offset;
+            }
 
             // Returns true if the queue is empty, and false otherwise.
-            this.isEmpty = function () {
-                return queue.length == 0;
-            };
+            isEmpty() {
+                return this.queue.length == 0;
+            }
 
             /* Enqueues the specified item. The parameter is:
              *
              * item - the item to enqueue
              */
-            this.enqueue = function (item) {
-                queue.push(item);
-            };
+            enqueue(item) {
+                this.queue.push(item);
+            }
 
-            /* Dequeues an item and returns it. If the queue is empty, the value
-             * 'undefined' is returned.
-             */
-            this.dequeue = function () {
+            dequeue() {
                 // if the queue is empty, return immediately
-                if (queue.length == 0) return undefined;
+                if (this.queue.length == 0) return undefined;
 
                 // store the item at the front of the queue
-                var item = queue[offset];
+                var item = this.queue[this.offset];
 
                 // increment the offset and remove the free space if necessary
-                if (++offset * 2 >= queue.length) {
-                    queue = queue.slice(offset);
-                    offset = 0;
+                if (++this.offset * 2 >= this.queue.length) {
+                    this.queue = this.queue.slice(this.offset);
+                    this.offset = 0;
                 }
 
                 // return the dequeued item
                 return item;
-            };
+            }
 
-            /* Returns the item at the front of the queue (without dequeuing it). If the
-             * queue is empty then undefined is returned.
-             */
-            this.peek = function () {
-                return queue.length > 0 ? queue[offset] : undefined;
-            };
+            peek() {
+                return this.queue.length > 0 ? this.queue[this.offset] : undefined;
+            }
         },
+
     /**
      * Disjoint set (union-find) implementation used here.
      *
