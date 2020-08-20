@@ -213,3 +213,26 @@ body > div:nth-of-type(n+3)>h2 {
     color: white;
     background-color: #344a5e;
 }
+
+.scroll-down {
+    width: 116px;
+    height: 55px;
+    position: absolute;
+    text-align: center;
+    left: 50%;
+    top: calc(100% - 64px);
+    stroke: #344a5e;
+    stroke-width: 3;
+    margin-left: -58px;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-name: scroll-down;
+    animation-timing-function: ease;
+}
+
+@keyframes scroll-down {
+    0%  { transform: translateY(0); }
+    20%  { transform: translateY(-15px); }
+    50%  { transform: translateY(0); }
+    100%  { transform: translateY(0); }
+}
