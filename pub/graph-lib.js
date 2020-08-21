@@ -1,5 +1,6 @@
-// Global object containing components of my library.
-const gjs = {
+"use strict";
+
+(function (global) {
     /**
      * A mathematical graph with edges and vertices represented by an adjacency
      * list using a nested Map.
@@ -7,16 +8,16 @@ const gjs = {
      * Structure:
      * adjList := Map{
      *      vertexName: [
-     *          Map<connected edge name, connected edge weight>,
+     *          Map<connected edge name, [connected edge weight, connected edge styles]>,
      *          x, y,
-     *          vertex and edge styles,
+     *          vertex styles,
      *          auxiliary information used for algorithms
      *          ],
      *      ...
      * }
      * where x, y represent the position of vertexName on a Cartesian plane.
      */
-    Graph: class Graph {
+    class Graph {
         constructor(canvas, options, graphTitle) {
             this.canvas = canvas;
             this.mouseDown = false;
@@ -32,6 +33,9 @@ const gjs = {
             !("directed" in options) && (options.directed = true);
             !("eades" in options) && (options.eades = false);
 
+            // Delay in ms between refreshes when animating
+            !("animateSpeed" in options) && (options.animateSpeed = 200);
+
             !("textColor" in options) && (options.textColor = "black");
             !("textFont" in options) && (options.textFont = "20px Arial");
 
@@ -44,6 +48,8 @@ const gjs = {
             // Edge options
             !("edgeWidth" in options) && (options.edgeWidth = 3);
             !("edgeColor" in options) && (options.edgeColor = "black");
+
+            !("activeColor" in options) && (options.activeColor = "red");
             this.options = options;
 
             this.adjList = new Map();
@@ -60,7 +66,10 @@ const gjs = {
         addControls(container) {
             const controlTitle = document.createElement("h1");
             const controlList = document.createElement("ul");
-            controlList.setAttribute("id", `${this.graphTitle.toLowerCase().replace(" ", "-")}-control-algs`);
+            controlList.setAttribute(
+                "id",
+                `${this.graphTitle.toLowerCase().replace(" ", "-")}-control-algs`
+            );
             controlTitle.innerHTML = this.graphTitle;
             container.appendChild(controlTitle);
             container.appendChild(controlList);
@@ -174,8 +183,8 @@ const gjs = {
         }
 
         /**
-         * Applies styles to the vertex at position and returns true, or returns
-         * false if there is no vertex there.
+         * Applies styles to the vertex at position if the vertex is well-defined,
+         * otherwise returns and does nothing.
          */
         styleSelectedVertex(position) {
             const matching = Array.from(this.adjList.entries()).find(([, vertexList]) => {
@@ -192,12 +201,27 @@ const gjs = {
                 return;
             }
 
-            matching[1][3].textColor = "red";
+            this.styleVertex(
+                "selected",
+                matching,
+                {
+                    textColor: this.options.activeColor,
+                    vertexBorderColor: this.options.activeColor,
+                },
+                {
+                    edgeColor: this.options.activeColor,
+                }
+            );
 
-            if (!this.styledVertices.hasOwnProperty("selected")) {
-                this.styledVertices.selected = [];
-            }
-            this.styledVertices["selected"].push(matching);
+            //matching[1][3].textColor = this.options.activeColor;
+            //Array.from(matching[1][0].entries()).forEach((v) => {
+            //    v[1][1].edgeColor = this.options.activeColor;
+            //})
+
+            //if (!this.styledVertices.hasOwnProperty("selected")) {
+            //    this.styledVertices.selected = [];
+            //}
+            //this.styledVertices["selected"].push(matching);
         }
 
         /**
@@ -227,6 +251,23 @@ const gjs = {
             });
             this.positionOnClick[0] = newPosition[0];
             this.positionOnClick[1] = newPosition[1];
+        }
+
+        /**
+         * Adds some styles to a vertex with a specific type (selected, algorithm
+         * types, etc.)
+         */
+        styleVertex(type, vertex, vertexStyles, edgeStyles, delay = 0) {
+            vertex[1][3] = { ...vertex[1][3], ...vertexStyles };
+            Array.from(vertex[1][0].entries()).forEach((v) => {
+                v[1][1] = { ...v[1][1], ...edgeStyles };
+            });
+
+            if (!this.styledVertices.hasOwnProperty(type)) {
+                this.styledVertices[type] = [];
+            }
+
+            this.styledVertices[type].push(vertex);
         }
 
         /**
@@ -270,7 +311,7 @@ const gjs = {
             this.canvas.clearRect(0, 0, this.canvas.canvas.width, this.canvas.canvas.height);
             for (let [source, [targets, x, y]] of this.adjList.entries()) {
                 for (const [target, [weight, style]] of targets.entries()) {
-                    gjs.drawEdge(
+                    drawEdge(
                         weight,
                         [x, y],
                         this.adjList.get(target).slice(1, 3),
@@ -282,7 +323,7 @@ const gjs = {
             }
 
             for (const source of this.adjList.keys()) {
-                gjs.drawVertex(
+                drawVertex(
                     source,
                     this.adjList.get(source).slice(1, 3),
                     this.canvas,
@@ -353,42 +394,45 @@ const gjs = {
          * Adds the algorithms in the array to the controls list.
          */
         addAlgorithms(algorithms) {
-            document.getElementById(`${this.graphTitle.toLowerCase().replace(" ", "-")}-control-algs`).append(
-                ...algorithms.map((alg) => {
-                    const entry = document.createElement("li");
-                    entry.setAttribute("id", `${alg}-button`);
-                    entry.innerHTML = alg;
-                    entry.addEventListener("click", async () => {
-                        if (this.isAlgorithmRunning) {
-                            this.unstyleVertices(this.currentAlgorithm);
-                            this.currentAlgorithm = null;
-                        }
+            document
+                .getElementById(`${this.graphTitle.toLowerCase().replace(" ", "-")}-control-algs`)
+                .append(
+                    ...algorithms.map((alg) => {
+                        const entry = document.createElement("li");
+                        entry.setAttribute("id", `${alg}-button`);
+                        entry.innerHTML = alg;
+                        entry.addEventListener("click", async () => {
+                            if (this.isAlgorithmRunning) {
+                                this.unstyleVertices(this.currentAlgorithm);
+                                this.currentAlgorithm = null;
+                            }
 
-                        await gjs.sleep(500);
-                        switch (alg.toLowerCase()) {
-                            case "bfs":
-                                await gjs.algorithms.bfs(this, "a");
-                                break;
-                            case "dfs":
-                                await gjs.algorithms.dfs(this, "a");
-                                break;
-                            case "mstprim":
-                                await gjs.algorithms.mstprim(this, "a");
-                                break;
-                            case "mstkruskal":
-                                await gjs.algorithms.mstkruskal(this, "a");
-                                break;
-                            default:
-                                console.log(`Algorithm ${alg} not valid.`);
-                                break;
-                        }
-                    });
-                    return entry;
-                })
-            );
+                            await sleep(500);
+                            switch (alg.toLowerCase()) {
+                                case "bfs":
+                                    await bfs(this, "a");
+                                    break;
+                                case "dfs":
+                                    await dfs(this, "a");
+                                    break;
+                                case "mstprim":
+                                    await mstprim(this, "a");
+                                    break;
+                                case "mstkruskal":
+                                    await mstkruskal(this, "a");
+                                    break;
+                                default:
+                                    console.log(`Algorithm ${alg} not valid.`);
+                                    break;
+                            }
+                        });
+                        return entry;
+                    })
+                );
         }
-    },
-    drawEdge: (weight, sourcePos, targetPos, canvasCtx, mousePos, options) => {
+    }
+
+    const drawEdge = (weight, sourcePos, targetPos, canvasCtx, mousePos, options) => {
         options = options || {
             edgeWidth: 3,
             edgeColor: "black",
@@ -452,9 +496,9 @@ const gjs = {
             canvasCtx.fillText(weight, 5, 5);
             canvasCtx.restore();
         }
-    },
+    };
 
-    drawVertex: (name, center, canvasCtx, mousePos, options) => {
+    const drawVertex = (name, center, canvasCtx, mousePos, options) => {
         options = options || {
             vertexRadius: 20,
             vertexFillColor: "white",
@@ -484,225 +528,223 @@ const gjs = {
         canvasCtx.font = mouseInVertex ? options.textFont : "12px Arial";
 
         canvasCtx.fillText(name, ...center);
-    },
-    algorithms: {
-        bfs: async (graph, source) => {
-            const queue = new gjs.Queue();
-            const adjList = graph.adjList;
+    };
+    const bfs = async (graph, source) => {
+        const queue = new Queue();
+        const adjList = graph.adjList;
 
-            if (!graph.styledVertices.hasOwnProperty("bfs")) {
-                graph.styledVertices.bfs = [];
-            }
+        if (!graph.styledVertices.hasOwnProperty("bfs")) {
+            graph.styledVertices.bfs = [];
+        }
 
-            graph.currentAlgorithm = "bfs";
-            graph.isAlgorithmRunning = true;
+        graph.currentAlgorithm = "bfs";
+        graph.isAlgorithmRunning = true;
 
-            if (adjList.has(source)) {
-                queue.enqueue([source, adjList.get(source)]);
+        if (adjList.has(source)) {
+            queue.enqueue([source, adjList.get(source)]);
 
-                const info = queue.peek()[1];
-                info[info.length - 1] = "visited";
-            } else {
-                throw `Cannot perform BFS on graph ${source} because ${source} is not in the graph.`;
-            }
+            const info = queue.peek()[1];
+            info[info.length - 1] = "visited";
+        } else {
+            throw `Cannot perform BFS on graph ${source} because ${source} is not in the graph.`;
+        }
 
-            await gjs.sleep(500);
+        await sleep(500);
 
-            const styledVertices = graph.styledVertices.bfs;
-            while (!queue.isEmpty()) {
-                const [v, vertexInfo] = queue.dequeue();
-                vertexInfo[3].edgeColor = "red";
-                styledVertices.push([v, vertexInfo]);
+        const styledVertices = graph.styledVertices.bfs;
+        while (!queue.isEmpty()) {
+            const [v, vertexInfo] = queue.dequeue();
+            vertexInfo[3].edgeColor = "red";
+            styledVertices.push([v, vertexInfo]);
 
-                for (const neighbour of vertexInfo[0].keys()) {
-                    const neighbourInfo = adjList.get(neighbour);
-                    styledVertices.push([neighbour, neighbourInfo]);
+            for (const neighbour of vertexInfo[0].keys()) {
+                const neighbourInfo = adjList.get(neighbour);
+                styledVertices.push([neighbour, neighbourInfo]);
 
-                    vertexInfo[0].get(neighbour)[1].edgeColor = "red";
-                    graph.redrawAll();
-                    await gjs.sleep(500);
-
-                    if (
-                        neighbourInfo[neighbourInfo.length - 1] === "visited" ||
-                        neighbourInfo[neighbourInfo.length - 1] === "explored"
-                    ) {
-                        continue;
-                    }
-                    queue.enqueue([neighbour, neighbourInfo]);
-                }
-
-                vertexInfo[vertexInfo.length - 1] = "explored";
-            }
-
-            graph.adjList.forEach((v) => (v[4] = ""));
-        },
-        dfs: async (graph, source) => {
-            const stack = [];
-            const adjList = graph.adjList;
-
-            if (!graph.styledVertices.hasOwnProperty("dfs")) {
-                graph.styledVertices.dfs = [];
-            }
-
-            graph.currentAlgorithm = "dfs";
-            graph.isAlgorithmRunning = true;
-
-            if (adjList.has(source)) {
-                stack.push([source, adjList.get(source)]);
-
-                const info = stack[stack.length - 1][1];
-                info[info.length - 1] = "visited";
-
+                vertexInfo[0].get(neighbour)[1].edgeColor = "red";
                 graph.redrawAll();
-            } else {
-                throw `Cannot perform DFS on graph ${source} because ${source} is not in the graph.`;
+                await sleep(500);
+
+                if (
+                    neighbourInfo[neighbourInfo.length - 1] === "visited" ||
+                    neighbourInfo[neighbourInfo.length - 1] === "explored"
+                ) {
+                    continue;
+                }
+                queue.enqueue([neighbour, neighbourInfo]);
             }
 
-            await gjs.sleep(500);
+            vertexInfo[vertexInfo.length - 1] = "explored";
+        }
 
-            const styledVertices = graph.styledVertices.dfs;
-            while (stack.length > 0) {
-                const [vertex, vertexInfo] = stack.pop();
+        graph.adjList.forEach((v) => (v[4] = ""));
+    };
+    const dfs = async (graph, source) => {
+        const stack = [];
+        const adjList = graph.adjList;
 
-                for (const neighbour of vertexInfo[0].keys()) {
-                    const neighbourInfo = adjList.get(neighbour);
-                    styledVertices.push([vertex, vertexInfo]);
+        if (!graph.styledVertices.hasOwnProperty("dfs")) {
+            graph.styledVertices.dfs = [];
+        }
 
-                    vertexInfo[0].get(neighbour)[1].edgeColor = "red";
-                    graph.redrawAll();
-                    await gjs.sleep(500);
+        graph.currentAlgorithm = "dfs";
+        graph.isAlgorithmRunning = true;
 
-                    if (
-                        neighbourInfo[neighbourInfo.length - 1] === "visited" ||
-                        neighbourInfo[neighbourInfo.length - 1] === "explored"
-                    ) {
-                        continue;
-                    }
+        if (adjList.has(source)) {
+            stack.push([source, adjList.get(source)]);
 
-                    stack.push([neighbour, neighbourInfo]);
-                }
+            const info = stack[stack.length - 1][1];
+            info[info.length - 1] = "visited";
 
-                vertexInfo[3].vertexColor = "blue";
+            graph.redrawAll();
+        } else {
+            throw `Cannot perform DFS on graph ${source} because ${source} is not in the graph.`;
+        }
+
+        await sleep(500);
+
+        const styledVertices = graph.styledVertices.dfs;
+        while (stack.length > 0) {
+            const [vertex, vertexInfo] = stack.pop();
+
+            for (const neighbour of vertexInfo[0].keys()) {
+                const neighbourInfo = adjList.get(neighbour);
+                styledVertices.push([vertex, vertexInfo]);
+
+                vertexInfo[0].get(neighbour)[1].edgeColor = "red";
                 graph.redrawAll();
-                await gjs.sleep(200);
+                await sleep(500);
 
-                vertexInfo[vertexInfo.length - 1] = "explored";
-            }
-
-            graph.adjList.forEach((v, k) => (v[4] = ""));
-        },
-        mstkruskal: async (graph) => {
-            if (!graph.styledVertices.hasOwnProperty("mstkruskal")) {
-                graph.styledVertices.mstkruskal = [];
-            }
-
-            graph.currentAlgorithm = "mstkruskal";
-            graph.isAlgorithmRunning = true;
-
-            let turnedDirected = graph.options.directed;
-            if (turnedDirected) {
-                graph.options.directed = false;
-            }
-
-            const ds = new gjs.disjointSet();
-            const edges = Array.from(graph.adjList).reduce((a, v) => {
-                ds.add(v[1]);
-
-                Array.from(v[1][0].entries()).forEach((v2) => a.push([v[0], v2[0], v2[1][0]]));
-
-                return a;
-            }, new gjs.pqueue.TinyQueue([], (e1, e2) => e1[2] - e2[2]));
-
-            const sol = [];
-            const styledVertices = graph.styledVertices.mstkruskal;
-            while (edges.length) {
-                const edge = edges.pop();
-                const u = graph.adjList.get(edge[0]);
-                const v = graph.adjList.get(edge[1]);
-
-                if (!ds.connected(u, v)) {
-                    sol.push(edge);
-                    ds.union(u, v);
-                    graph.adjList.get(edge[0])[0].get(edge[1])[1].edgeColor = "red";
-                    styledVertices.push([edge[0], u]);
-                    await gjs.sleep(200);
-                    graph.redrawAll();
-                }
-            }
-
-            if (turnedDirected) {
-                graph.options.directed = true;
-            }
-
-            graph.adjList.forEach((v) => {
-                v[4] = "";
-                delete v[5];
-            });
-        },
-        mstprim: async (graph) => {
-            if (!graph.styledVertices.hasOwnProperty("mstprim")) {
-                graph.styledVertices.mstprim = [];
-            }
-
-            graph.currentAlgorithm = "mstprim";
-            graph.isAlgorithmRunning = true;
-
-            let turnedDirected = graph.options.directed;
-            if (turnedDirected) {
-                graph.options.directed = false;
-            }
-
-            graph.adjList.forEach((v) => (v[4] = [Infinity, null]));
-
-            const edges = [];
-            const p_queue = new gjs.pqueue.TinyQueue([], (e1, e2) => e1[2] - e2[2]);
-            const root = graph.adjList.keys().next().value;
-
-            const styledVertices = graph.styledVertices.mstprim;
-            Array.from(graph.adjList.get(root)[0]).forEach((v) =>
-                p_queue.push([root, v[0], v[1][0]])
-            );
-            while (p_queue.length) {
-                const edge = p_queue.pop();
-                const [popStart, popEnd] = edge;
-
-                let unvisited = null;
-                if (graph.adjList.get(popStart)[4][1] === null) {
-                    unvisited = popStart;
-                } else if (graph.adjList.get(popEnd)[4][1] === null) {
-                    unvisited = popEnd;
+                if (
+                    neighbourInfo[neighbourInfo.length - 1] === "visited" ||
+                    neighbourInfo[neighbourInfo.length - 1] === "explored"
+                ) {
+                    continue;
                 }
 
-                if (unvisited) {
-                    edges.push(edge);
-                    styledVertices.push([popStart, graph.adjList.get(popStart)]);
-
-                    graph.adjList.get(edge[0])[0].get(edge[1])[1].edgeColor = "red";
-                    await gjs.sleep(100);
-                    graph.redrawAll();
-
-                    graph.adjList.get(unvisited)[4][1] = unvisited;
-                    Array.from(graph.adjList.get(unvisited)[0]).forEach((v) => {
-                        if (
-                            graph.adjList.get(unvisited)[4][1] === null ||
-                            graph.adjList.get(v[0])[4][1] === null
-                        ) {
-                            p_queue.push([unvisited, v[0], v[1][0]]);
-                        }
-                    });
-                }
+                stack.push([neighbour, neighbourInfo]);
             }
 
-            graph.adjList.forEach((v) => (v[4] = ""));
-            if (turnedDirected) {
-                graph.options.directed = true;
+            vertexInfo[3].vertexColor = "blue";
+            graph.redrawAll();
+            await sleep(200);
+
+            vertexInfo[vertexInfo.length - 1] = "explored";
+        }
+
+        graph.adjList.forEach((v, k) => (v[4] = ""));
+    };
+    const mstkruskal = async (graph) => {
+        if (!graph.styledVertices.hasOwnProperty("mstkruskal")) {
+            graph.styledVertices.mstkruskal = [];
+        }
+
+        graph.currentAlgorithm = "mstkruskal";
+        graph.isAlgorithmRunning = true;
+
+        let turnedDirected = graph.options.directed;
+        if (turnedDirected) {
+            graph.options.directed = false;
+        }
+
+        const ds = new disjointSet();
+        const edges = Array.from(graph.adjList).reduce((a, v) => {
+            ds.add(v[1]);
+
+            Array.from(v[1][0].entries()).forEach((v2) => a.push([v[0], v2[0], v2[1][0]]));
+
+            return a;
+        }, new TinyQueue([], (e1, e2) => e1[2] - e2[2]));
+
+        const sol = [];
+        const styledVertices = graph.styledVertices.mstkruskal;
+        while (edges.length) {
+            const edge = edges.pop();
+            const u = graph.adjList.get(edge[0]);
+            const v = graph.adjList.get(edge[1]);
+
+            if (!ds.connected(u, v)) {
+                sol.push(edge);
+                ds.union(u, v);
+                graph.adjList.get(edge[0])[0].get(edge[1])[1].edgeColor = "red";
+                styledVertices.push([edge[0], u]);
+                await sleep(200);
+                graph.redrawAll();
             }
-        },
-    },
-    sleep: (ms) => {
+        }
+
+        if (turnedDirected) {
+            graph.options.directed = true;
+        }
+
+        graph.adjList.forEach((v) => {
+            v[4] = "";
+            delete v[5];
+        });
+    };
+    const mstprim = async (graph) => {
+        if (!graph.styledVertices.hasOwnProperty("mstprim")) {
+            graph.styledVertices.mstprim = [];
+        }
+
+        graph.currentAlgorithm = "mstprim";
+        graph.isAlgorithmRunning = true;
+
+        let turnedDirected = graph.options.directed;
+        if (turnedDirected) {
+            graph.options.directed = false;
+        }
+
+        graph.adjList.forEach((v) => (v[4] = [Infinity, null]));
+
+        const edges = [];
+        const p_queue = new TinyQueue([], (e1, e2) => e1[2] - e2[2]);
+        const root = graph.adjList.keys().next().value;
+
+        const styledVertices = graph.styledVertices.mstprim;
+        Array.from(graph.adjList.get(root)[0]).forEach((v) => p_queue.push([root, v[0], v[1][0]]));
+        while (p_queue.length) {
+            const edge = p_queue.pop();
+            const [popStart, popEnd] = edge;
+
+            let unvisited = null;
+            if (graph.adjList.get(popStart)[4][1] === null) {
+                unvisited = popStart;
+            } else if (graph.adjList.get(popEnd)[4][1] === null) {
+                unvisited = popEnd;
+            }
+
+            if (unvisited) {
+                edges.push(edge);
+                styledVertices.push([popStart, graph.adjList.get(popStart)]);
+
+                graph.adjList.get(edge[0])[0].get(edge[1])[1].edgeColor = "red";
+                await sleep(100);
+                graph.redrawAll();
+
+                graph.adjList.get(unvisited)[4][1] = unvisited;
+                Array.from(graph.adjList.get(unvisited)[0]).forEach((v) => {
+                    if (
+                        graph.adjList.get(unvisited)[4][1] === null ||
+                        graph.adjList.get(v[0])[4][1] === null
+                    ) {
+                        p_queue.push([unvisited, v[0], v[1][0]]);
+                    }
+                });
+            }
+        }
+
+        graph.adjList.forEach((v) => (v[4] = ""));
+        if (turnedDirected) {
+            graph.options.directed = true;
+        }
+    };
+
+    const sleep = (ms) => {
         return new Promise((resolve) => setTimeout(resolve, ms));
-    },
-    eades: {
+    };
+
+    const eades = {
         consts: {
             cSpring: 2, // Spring constant
             cRepul: 1, // Repulsion constant
@@ -799,62 +841,59 @@ const gjs = {
                 }
             }
         },
-    },
+    };
+
     /**
      * FIFO queue implementation used here.
      * Created by Kate Morley - http://code.iamkate.com/ - and released under the terms
      * of the CC0 1.0 Universal legal code:
      * http://creativecommons.org/publicdomain/zero/1.0/legalcode
      */
-    Queue:
-        /* Creates a new queue. A queue is a first-in-first-out (FIFO) data structure -
-         * items are added to the end of the queue and removed from the front.
+    class Queue {
+        constructor() {
+            this.queue = [];
+            this.offset = 0;
+        }
+
+        // Returns the length of the queue.
+        getLength() {
+            return this.queue.length - this.offset;
+        }
+
+        // Returns true if the queue is empty, and false otherwise.
+        isEmpty() {
+            return this.queue.length == 0;
+        }
+
+        /* Enqueues the specified item. The parameter is:
+         *
+         * item - the item to enqueue
          */
-        class {
-            constructor() {
-                this.queue = [];
+        enqueue(item) {
+            this.queue.push(item);
+        }
+
+        dequeue() {
+            // if the queue is empty, return immediately
+            if (this.queue.length == 0) return undefined;
+
+            // store the item at the front of the queue
+            var item = this.queue[this.offset];
+
+            // increment the offset and remove the free space if necessary
+            if (++this.offset * 2 >= this.queue.length) {
+                this.queue = this.queue.slice(this.offset);
                 this.offset = 0;
             }
 
-            // Returns the length of the queue.
-            getLength() {
-                return this.queue.length - this.offset;
-            }
+            // return the dequeued item
+            return item;
+        }
 
-            // Returns true if the queue is empty, and false otherwise.
-            isEmpty() {
-                return this.queue.length == 0;
-            }
-
-            /* Enqueues the specified item. The parameter is:
-             *
-             * item - the item to enqueue
-             */
-            enqueue(item) {
-                this.queue.push(item);
-            }
-
-            dequeue() {
-                // if the queue is empty, return immediately
-                if (this.queue.length == 0) return undefined;
-
-                // store the item at the front of the queue
-                var item = this.queue[this.offset];
-
-                // increment the offset and remove the free space if necessary
-                if (++this.offset * 2 >= this.queue.length) {
-                    this.queue = this.queue.slice(this.offset);
-                    this.offset = 0;
-                }
-
-                // return the dequeued item
-                return item;
-            }
-
-            peek() {
-                return this.queue.length > 0 ? this.queue[this.offset] : undefined;
-            }
-        },
+        peek() {
+            return this.queue.length > 0 ? this.queue[this.offset] : undefined;
+        }
+    }
 
     /**
      * Disjoint set (union-find) implementation used here.
@@ -862,7 +901,7 @@ const gjs = {
      * (c) 2014, Andrii Heonia
      * https://github.com/AndriiHeonia/disjoint-set
      */
-    disjointSet: class {
+    class disjointSet {
         constructor() {
             this._reset();
         }
@@ -964,84 +1003,82 @@ const gjs = {
             this._size = {};
             this._lastId = 0;
         }
-    },
+    }
+
     /**
      * Priority queue implementation from:
      * https://github.com/mourner/tinyqueue
      */
-    pqueue: {
-        TinyQueue: class {
-            constructor(data = [], compare = gjs.pqueue.defaultCompare) {
-                this.data = data;
-                this.length = this.data.length;
-                this.compare = compare;
+    class TinyQueue {
+        constructor(data = [], compare = pqueue.defaultCompare) {
+            this.data = data;
+            this.length = this.data.length;
+            this.compare = compare;
 
-                if (this.length > 0) {
-                    for (let i = (this.length >> 1) - 1; i >= 0; i--) this._down(i);
+            if (this.length > 0) {
+                for (let i = (this.length >> 1) - 1; i >= 0; i--) this._down(i);
+            }
+        }
+
+        push(item) {
+            this.data.push(item);
+            this._up(this.length++);
+        }
+
+        pop() {
+            if (this.length === 0) return undefined;
+
+            const top = this.data[0];
+            const bottom = this.data.pop();
+
+            if (--this.length > 0) {
+                this.data[0] = bottom;
+                this._down(0);
+            }
+
+            return top;
+        }
+
+        peek() {
+            return this.data[0];
+        }
+
+        _up(pos) {
+            const { data, compare } = this;
+            const item = data[pos];
+
+            while (pos > 0) {
+                const parent = (pos - 1) >> 1;
+                const current = data[parent];
+                if (compare(item, current) >= 0) break;
+                data[pos] = current;
+                pos = parent;
+            }
+
+            data[pos] = item;
+        }
+
+        _down(pos) {
+            const { data, compare } = this;
+            const halfLength = this.length >> 1;
+            const item = data[pos];
+
+            while (pos < halfLength) {
+                let bestChild = (pos << 1) + 1; // initially it is the left child
+                const right = bestChild + 1;
+
+                if (right < this.length && compare(data[right], data[bestChild]) < 0) {
+                    bestChild = right;
                 }
+                if (compare(data[bestChild], item) >= 0) break;
+
+                data[pos] = data[bestChild];
+                pos = bestChild;
             }
 
-            push(item) {
-                this.data.push(item);
-                this._up(this.length++);
-            }
+            data[pos] = item;
+        }
+    }
 
-            pop() {
-                if (this.length === 0) return undefined;
-
-                const top = this.data[0];
-                const bottom = this.data.pop();
-
-                if (--this.length > 0) {
-                    this.data[0] = bottom;
-                    this._down(0);
-                }
-
-                return top;
-            }
-
-            peek() {
-                return this.data[0];
-            }
-
-            _up(pos) {
-                const { data, compare } = this;
-                const item = data[pos];
-
-                while (pos > 0) {
-                    const parent = (pos - 1) >> 1;
-                    const current = data[parent];
-                    if (compare(item, current) >= 0) break;
-                    data[pos] = current;
-                    pos = parent;
-                }
-
-                data[pos] = item;
-            }
-
-            _down(pos) {
-                const { data, compare } = this;
-                const halfLength = this.length >> 1;
-                const item = data[pos];
-
-                while (pos < halfLength) {
-                    let bestChild = (pos << 1) + 1; // initially it is the left child
-                    const right = bestChild + 1;
-
-                    if (right < this.length && compare(data[right], data[bestChild]) < 0) {
-                        bestChild = right;
-                    }
-                    if (compare(data[bestChild], item) >= 0) break;
-
-                    data[pos] = data[bestChild];
-                    pos = bestChild;
-                }
-
-                data[pos] = item;
-            }
-        },
-        defaultCompare: (a, b) => {
-            return a < b ? -1 : a > b ? 1 : 0;
-        },
-    },
-};
+    global.Graph = global.Graph || Graph;
+})(window);

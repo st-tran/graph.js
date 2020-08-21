@@ -9,7 +9,7 @@ window.onload = () => {
     const mGraphCanvas = document.getElementById("main-graph");
     const mGraphCtx = mGraphCanvas.getContext("2d");
 
-    const mainGraph = new gjs.Graph(
+    const mainGraph = new Graph(
         mGraphCtx,
         { directed: false, edgeColor: "grey", edgeWidth: 1 },
         "graph.js main screen demo"
@@ -41,7 +41,7 @@ window.onload = () => {
     const diseaseGraphCtx = diseaseGraphCanvas.getContext("2d");
     const diseaseGraphControls = document.getElementById("disease-graph-controls");
 
-    const diseaseGraph = new gjs.Graph(diseaseGraphCtx, { edgeColor: "#344a5e" }, "Disease Spread");
+    const diseaseGraph = new Graph(diseaseGraphCtx, { edgeColor: "#344a5e", activeColor: "green" }, "Disease Spread");
     diseaseGraph.populateAdjListFromJSObject(diseaseAdjacencyList);
     diseaseGraph.addControls(diseaseGraphControls);
     diseaseGraph.addAlgorithms(["BFS", "DFS"]);
@@ -51,7 +51,7 @@ window.onload = () => {
     const treeGraphCtx = treeGraphCanvas.getContext("2d");
     const treeGraphControls = document.getElementById("tree-graph-controls");
 
-    const treeGraph = new gjs.Graph(treeGraphCtx, {}, "Tree Example");
+    const treeGraph = new Graph(treeGraphCtx, {}, "Tree Example");
     treeGraph.populateAdjListFromJSObject(treeAdjacencyList);
     treeGraph.addControls(treeGraphControls);
     treeGraph.addAlgorithms(["BFS", "DFS"]);
@@ -61,7 +61,7 @@ window.onload = () => {
     const mstGraphCtx = mstGraphCanvas.getContext("2d");
     const mstGraphControls = document.getElementById("mst-graph-controls");
 
-    const mstGraph = new gjs.Graph(mstGraphCtx, {}, "MST Example");
+    const mstGraph = new Graph(mstGraphCtx, {}, "MST Example");
     mstGraph.populateAdjListFromJSObject(mstExample);
     mstGraph.addControls(mstGraphControls);
     mstGraph.addAlgorithms(["MSTPRIM", "MSTKRUSKAL"]);
@@ -71,7 +71,7 @@ window.onload = () => {
     const rpgGraphCtx = rpgGraphCanvas.getContext("2d");
     const rpgGraphControls = document.getElementById("rpg-graph-controls");
 
-    const rpgGraph = new gjs.Graph(rpgGraphCtx, {}, "Randomly Placed Graph");
+    const rpgGraph = new Graph(rpgGraphCtx, {}, "Randomly Placed Graph");
     rpgGraph.populateAdjListFromJSObject(randomlyPlacedGraph);
     rpgGraph.addControls(rpgGraphControls);
     rpgGraph.addAlgorithms(["BFS", "DFS", "MSTPRIM", "MSTKRUSKAL"]);
