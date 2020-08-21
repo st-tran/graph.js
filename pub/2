@@ -252,8 +252,6 @@
                 Below you can see some graphs generated using this library. If you hover over the
                 canvas container, you will see the JavaScript code used to create it, along with the
                 corresponding input data.
-
-                Additionally, if you click on the controls, the corresponding algorithm will be executed.
             </p>
             <div class="graph">
                 <div class="graphControls" id="disease-graph-controls"></div>
@@ -285,7 +283,6 @@ diseaseGraph.addAlgorithms(["BFS", "DFS"]);
 
 // Draw the graph to the canvas
 diseaseGraph.drawToCanvas();</code></pre>
-                 
             </div>
             <div class="graph">
                 <div class="graphControls" id="tree-graph-controls"></div>

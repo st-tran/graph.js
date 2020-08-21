@@ -41,7 +41,11 @@ window.onload = () => {
     const diseaseGraphCtx = diseaseGraphCanvas.getContext("2d");
     const diseaseGraphControls = document.getElementById("disease-graph-controls");
 
-    const diseaseGraph = new Graph(diseaseGraphCtx, { edgeColor: "#344a5e", activeColor: "green" }, "Disease Spread");
+    const diseaseGraph = new Graph(
+        diseaseGraphCtx,
+        { edgeColor: "#344a5e", activeColor: "green", vertexFillColor: "yellow" },
+        "Disease Spread"
+    );
     diseaseGraph.populateAdjListFromJSObject(diseaseAdjacencyList);
     diseaseGraph.addControls(diseaseGraphControls);
     diseaseGraph.addAlgorithms(["BFS", "DFS"]);
@@ -51,7 +55,7 @@ window.onload = () => {
     const treeGraphCtx = treeGraphCanvas.getContext("2d");
     const treeGraphControls = document.getElementById("tree-graph-controls");
 
-    const treeGraph = new Graph(treeGraphCtx, {}, "Tree Example");
+    const treeGraph = new Graph(treeGraphCtx, { edgeColor: "lightblue", activeColor: "blue", edgeWidth: 5, vertexBorderColor: "darkblue" }, "Tree Example");
     treeGraph.populateAdjListFromJSObject(treeAdjacencyList);
     treeGraph.addControls(treeGraphControls);
     treeGraph.addAlgorithms(["BFS", "DFS"]);

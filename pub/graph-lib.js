@@ -33,9 +33,6 @@
             !("directed" in options) && (options.directed = true);
             !("eades" in options) && (options.eades = false);
 
-            // Delay in ms between refreshes when animating
-            !("animateSpeed" in options) && (options.animateSpeed = 200);
-
             !("textColor" in options) && (options.textColor = "black");
             !("textFont" in options) && (options.textFont = "20px Arial");
 
@@ -210,18 +207,9 @@
                 },
                 {
                     edgeColor: this.options.activeColor,
-                }
+                },
+                0
             );
-
-            //matching[1][3].textColor = this.options.activeColor;
-            //Array.from(matching[1][0].entries()).forEach((v) => {
-            //    v[1][1].edgeColor = this.options.activeColor;
-            //})
-
-            //if (!this.styledVertices.hasOwnProperty("selected")) {
-            //    this.styledVertices.selected = [];
-            //}
-            //this.styledVertices["selected"].push(matching);
         }
 
         /**
@@ -257,11 +245,13 @@
          * Adds some styles to a vertex with a specific type (selected, algorithm
          * types, etc.)
          */
-        styleVertex(type, vertex, vertexStyles, edgeStyles, delay = 0) {
+        styleVertex(type, vertex, vertexStyles, edgeStyles, delay = 200) {
             vertex[1][3] = { ...vertex[1][3], ...vertexStyles };
-            Array.from(vertex[1][0].entries()).forEach((v) => {
+
+            for (const v of vertex[1][0]) {
                 v[1][1] = { ...v[1][1], ...edgeStyles };
-            });
+                this.redrawAll();
+            }
 
             if (!this.styledVertices.hasOwnProperty(type)) {
                 this.styledVertices[type] = [];
@@ -281,15 +271,23 @@
                 return;
             }
 
+            const {
+                vertexRadius,
+                vertexFillColor,
+                textColor,
+                textFont,
+                vertexBorderColor,
+                vertexBorderWidth,
+            } = this.options;
             for (const [, vertexList] of vertices) {
-                Array.from(vertexList[0].entries()).forEach((v) => (v[1][1].edgeColor = "black"));
+                Array.from(vertexList[0].entries()).forEach((v) => (v[1][1].edgeColor = this.options.edgeColor));
                 vertexList[3] = {
-                    vertexRadius: 20,
-                    vertexFillColor: "white",
-                    textColor: "black",
-                    textFont: "20px Arial",
-                    vertexBorderColor: "black",
-                    vertexBorderWidth: 3,
+                    vertexRadius,
+                    vertexFillColor,
+                    textColor,
+                    textFont,
+                    vertexBorderColor,
+                    vertexBorderWidth,
                 };
             }
 
@@ -456,7 +454,7 @@
             tPosCopy[0] -= 20 * Math.cos(angle);
             tPosCopy[1] -= 20 * Math.sin(angle);
             canvasCtx.lineTo(...tPosCopy);
-            canvasCtx.lineTo(
+            canvasCtx.moveTo(
                 tPosCopy[0] - 10 * Math.cos(angle - Math.PI / 6),
                 tPosCopy[1] - 10 * Math.sin(angle - Math.PI / 6)
             );
@@ -554,14 +552,14 @@
         const styledVertices = graph.styledVertices.bfs;
         while (!queue.isEmpty()) {
             const [v, vertexInfo] = queue.dequeue();
-            vertexInfo[3].edgeColor = "red";
+            vertexInfo[3].edgeColor = graph.options.activeColor;
             styledVertices.push([v, vertexInfo]);
 
             for (const neighbour of vertexInfo[0].keys()) {
                 const neighbourInfo = adjList.get(neighbour);
                 styledVertices.push([neighbour, neighbourInfo]);
 
-                vertexInfo[0].get(neighbour)[1].edgeColor = "red";
+                vertexInfo[0].get(neighbour)[1].edgeColor = graph.options.activeColor;
                 graph.redrawAll();
                 await sleep(500);
 
@@ -611,10 +609,9 @@
                 const neighbourInfo = adjList.get(neighbour);
                 styledVertices.push([vertex, vertexInfo]);
 
-                vertexInfo[0].get(neighbour)[1].edgeColor = "red";
+                vertexInfo[0].get(neighbour)[1].edgeColor = graph.options.activeColor;
                 graph.redrawAll();
                 await sleep(500);
-
                 if (
                     neighbourInfo[neighbourInfo.length - 1] === "visited" ||
                     neighbourInfo[neighbourInfo.length - 1] === "explored"
@@ -624,10 +621,6 @@
 
                 stack.push([neighbour, neighbourInfo]);
             }
-
-            vertexInfo[3].vertexColor = "blue";
-            graph.redrawAll();
-            await sleep(200);
 
             vertexInfo[vertexInfo.length - 1] = "explored";
         }
