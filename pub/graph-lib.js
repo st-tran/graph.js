@@ -154,7 +154,9 @@
          */
         drawToCanvas() {
             if (!this.stable) {
-                //eades(this.adjList);
+                if (this.options.eades) {
+                    eades.eades(this.adjList);
+                }
                 for (let [source, [, x, y]] of this.adjList.entries()) {
                     // Bring source vertex back in bounds
                     if (x < 0) {
@@ -739,9 +741,9 @@
 
     const eades = {
         consts: {
-            cSpring: 2, // Spring constant
-            cRepul: 1, // Repulsion constant
-            cDispl: 1, // Displacement constant
+            cSpring: 1, // Spring constant
+            cRepul: 1.5, // Repulsion constant
+            cDispl: 5, // Displacement constant
             iterations: 100, // Number of iterations to run algorithm for
         },
         utils: {
@@ -764,6 +766,7 @@
              * Repulsive force between non-adjacent nodes u, v
              */
             f_repul: (adjList, u, v) => {
+                const { consts, utils } = eades;
                 let uPos = adjList.get(u).slice(1);
                 let vPos = adjList.get(v).slice(1);
                 uPos = uPos.map((c) => {
@@ -772,9 +775,9 @@
                 vPos = vPos.map((c) => {
                     return c / Math.sqrt(Math.pow(vPos[0], 2) + Math.pow(vPos[1], 2));
                 });
-                const coef = cRepul / squared_eucl_dist(uPos, vPos);
+                const coef = consts.cRepul / utils.squared_eucl_dist(uPos, vPos);
 
-                return unit_vec(uPos, vPos).map((comp) => {
+                return utils.unit_vec(uPos, vPos).map((comp) => {
                     return coef * comp;
                 });
             },
@@ -782,12 +785,13 @@
              * Spring/attractive force between adjacent vertices u, v
              */
             f_spring: (adjList, u, v) => {
+                const { consts, utils } = eades;
                 const uPos = adjList.get(u).slice(1);
                 const vPos = adjList.get(v).slice(1);
                 const coef =
-                    cSpring *
-                    Math.log10(Math.sqrt(squared_eucl_dist(vPos, uPos)) / adjList.get(v)[0].get(u));
-                return unit_vec(vPos, uPos).map((comp) => {
+                    consts.cSpring *
+                    Math.log10(Math.sqrt(utils.squared_eucl_dist(vPos, uPos)) / adjList.get(v)[0].get(u));
+                return utils.unit_vec(vPos, uPos).map((comp) => {
                     return coef * comp;
                 });
             },
@@ -795,6 +799,7 @@
              * Displacement vector for vertex v
              */
             vec_displ: (adjList, v) => {
+                const { consts, utils } = eades;
                 const adjacent = Array.from(adjList.get(v)[0].keys());
                 const nonAdjacent = Array.from(adjList.keys()).filter((u) => {
                     return u !== v && !adjList.get(v)[0].has(u);
@@ -804,12 +809,12 @@
                 let fAdj = [0, 0];
 
                 for (const u of nonAdjacent) {
-                    const f = f_repul(adjList, u, v);
+                    const f = utils.f_repul(adjList, u, v);
                     fNonAdj = [fNonAdj[0] + f[0] || 0, fNonAdj[1] + f[1] || 0];
                 }
 
                 for (const u of adjacent) {
-                    const f = f_spring(adjList, u, v);
+                    const f = utils.f_spring(adjList, u, v);
                     fAdj = [fAdj[0] + f[0] || 0, fAdj[1] + f[1] || 0];
                 }
 
@@ -821,16 +826,17 @@
          * Eades force-directed graph layout adjustment algorithm
          */
         eades: (adjList) => {
-            for (let i = 0; i < iterations; i++) {
+            const { consts, utils } = eades;
+            for (let i = 0; i < consts.iterations; i++) {
                 const vertexForces = new Map();
                 for (const v of adjList.keys()) {
-                    vertexForces.set(v, vec_displ(adjList, v));
+                    vertexForces.set(v, utils.vec_displ(adjList, v));
                 }
 
                 for (const v of adjList.keys()) {
                     const force = vertexForces.get(v);
-                    adjList.get(v)[1] += cDispl * force[0];
-                    adjList.get(v)[2] += cDispl * force[1];
+                    adjList.get(v)[1] += consts.cDispl * force[0];
+                    adjList.get(v)[2] += consts.cDispl * force[1];
                 }
             }
         },
@@ -838,6 +844,7 @@
 
     /**
      * FIFO queue implementation used here.
+     * http://code.iamkate.com/javascript/queues/
      * Created by Kate Morley - http://code.iamkate.com/ - and released under the terms
      * of the CC0 1.0 Universal legal code:
      * http://creativecommons.org/publicdomain/zero/1.0/legalcode

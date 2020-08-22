@@ -141,10 +141,6 @@
         { edgeColor: "#344a5e", activeColor: "green", vertexFillColor: "yellow" },
         "Disease Spread"
     );
-    diseaseGraph.populateAdjListFromJSObject(diseaseAdjacencyList);
-    diseaseGraph.addControls(diseaseGraphControls);
-    diseaseGraph.addAlgorithms(["BFS", "DFS"]);
-    diseaseGraph.drawToCanvas();
                 </code></pre>
             Next, the graph should have data populated using a JS object. You can see in the examples below what the format should be.
             <pre><code class="javascript">
@@ -190,6 +186,20 @@
 <li><p><code class="sourceCode javascript">Graph<span class="op">.</span><span class="fu">addListeners</span>()</code>: Add event listeners to this Graph to respond to mouse and resize events.</p></li>
 <li><p><code class="sourceCode javascript">Graph<span class="op">.</span><span class="fu">addAlgorithms</span>(algorithms)</code>: Add the algorithms given in the <code class="sourceCode javascript">algorithms</code> array the controls for this Graph.</p></li>
 </ul>
+            <h2>Included algorithms</h2>
+            <p>
+                The library comes bundled with the following algorithms, but more can be added by extending the library; the underlying representation is described below.
+            </p>
+            <ul>
+                <li>Breadth First Search (BFS)</li>
+                <li>Depth First Search (DFS)</li>
+                <li>Prim's Minimal Spanning Tree Algorithm (MSTPRIM)</li>
+                <ul><li>Only works for undirected graphs</li></ul>
+                <li>Kruskal's Minimal Spanning Tree Algorithm (MSTKRUSKAL)</li>
+                <ul><li>Only works for undirected graphs</li></ul>
+            </ul>
+            See <a href="https://en.wikipedia.org/wiki/Category:Graph_algorithms">here</a> for an explanation of how they work.
+        
             <h2>Extending the Library</h2>
             <p>
                 It is possible to extend this library to support more algorithms. The underlying
@@ -246,7 +256,7 @@
             </ul>
             <pre><code class="json"></code></pre>
         </div>
-        <div class="examples">
+        <div class="examples" id="examples">
             <h1>Examples</h1>
             <p>
                 Below you can see some graphs generated using this library. If you hover over the

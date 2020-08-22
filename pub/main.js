@@ -65,7 +65,7 @@ window.onload = () => {
     const mstGraphCtx = mstGraphCanvas.getContext("2d");
     const mstGraphControls = document.getElementById("mst-graph-controls");
 
-    const mstGraph = new Graph(mstGraphCtx, {}, "MST Example");
+    const mstGraph = new Graph(mstGraphCtx, { vertexBorderColor: "#f200ff", edgeColor: "#f200ff", activeColor: "purple", edgeWidth: 5, textColor: "#f200ff" }, "MST Example");
     mstGraph.populateAdjListFromJSObject(mstExample);
     mstGraph.addControls(mstGraphControls);
     mstGraph.addAlgorithms(["MSTPRIM", "MSTKRUSKAL"]);
