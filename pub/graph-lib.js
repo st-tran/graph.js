@@ -530,7 +530,7 @@
         canvasCtx.fillText(name, ...center);
     };
     const bfs = async (graph, source) => {
-        const queue = new Queue();
+        const queue = new Queue(); // Used http://code.iamkate.com/javascript/queues/
         const adjList = graph.adjList;
 
         if (!graph.styledVertices.hasOwnProperty("bfs")) {
@@ -642,7 +642,7 @@
             graph.options.directed = false;
         }
 
-        const ds = new disjointSet();
+        const ds = new disjointSet(); // Used https://github.com/AndriiHeonia/disjoint-set
         const edges = Array.from(graph.adjList).reduce((a, v) => {
             ds.add(v[1]);
 
@@ -661,7 +661,7 @@
             if (!ds.connected(u, v)) {
                 sol.push(edge);
                 ds.union(u, v);
-                graph.adjList.get(edge[0])[0].get(edge[1])[1].edgeColor = "red";
+                graph.adjList.get(edge[0])[0].get(edge[1])[1].edgeColor = graph.options.activeColor;
                 styledVertices.push([edge[0], u]);
                 await sleep(200);
                 graph.redrawAll();
@@ -693,7 +693,7 @@
         graph.adjList.forEach((v) => (v[4] = [Infinity, null]));
 
         const edges = [];
-        const p_queue = new TinyQueue([], (e1, e2) => e1[2] - e2[2]);
+        const p_queue = new TinyQueue([], (e1, e2) => e1[2] - e2[2]); // Used https://github.com/mourner/tinyqueue
         const root = graph.adjList.keys().next().value;
 
         const styledVertices = graph.styledVertices.mstprim;
@@ -713,7 +713,7 @@
                 edges.push(edge);
                 styledVertices.push([popStart, graph.adjList.get(popStart)]);
 
-                graph.adjList.get(edge[0])[0].get(edge[1])[1].edgeColor = "red";
+                graph.adjList.get(edge[0])[0].get(edge[1])[1].edgeColor = graph.options.activeColor;
                 await sleep(100);
                 graph.redrawAll();
 

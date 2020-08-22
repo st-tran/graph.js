@@ -284,7 +284,10 @@ const diseaseGraphCtx = diseaseGraphCanvas.getContext("2d");
 const diseaseGraphControls = document.getElementById("disease-graph-controls");
 
 // Instantiate graph, bind it to the canvas
-const diseaseGraph = new gjs.Graph(diseaseGraphCtx, { edgeColor: "#344a5e" }, "Disease Spread");
+const diseaseGraph = new Graph(
+    diseaseGraphCtx,
+    { edgeColor: "#344a5e", activeColor: "green", vertexFillColor: "yellow" },
+    "Disease Spread"
 
 // Process the adjacency list (shown on right)
 diseaseGraph.populateAdjListFromJSObject(diseaseAdjacencyList);
@@ -317,7 +320,16 @@ const treeGraphCanvas = document.getElementById("tree-graph");
 const treeGraphCtx = treeGraphCanvas.getContext("2d");
 const treeGraphControls = document.getElementById("tree-graph-controls");
 
-const treeGraph = new gjs.Graph(treeGraphCtx, {}, "Tree Example");
+const treeGraph = new Graph(
+    treeGraphCtx,
+    {
+        edgeColor: "lightblue",
+        activeColor: "blue",
+        edgeWidth: 5,
+        vertexBorderColor: "darkblue",
+    },
+    "Tree Example"
+);
 treeGraph.populateAdjListFromJSObject(treeAdjacencyList);
 treeGraph.addControls(treeGraphControls);
 treeGraph.addAlgorithms(["BFS", "DFS"]);
@@ -347,7 +359,17 @@ const mstGraphCanvas = document.getElementById("mst-graph");
 const mstGraphCtx = mstGraphCanvas.getContext("2d");
 const mstGraphControls = document.getElementById("mst-graph-controls");
 
-const mstGraph = new gjs.Graph(mstGraphCtx, {}, "MST Example");
+const mstGraph = new Graph(
+    mstGraphCtx,
+    {
+        vertexBorderColor: "#f200ff",
+        edgeColor: "#f200ff",
+        activeColor: "purple",
+        edgeWidth: 5,
+        textColor: "#f200ff",
+    },
+    "MST Example"
+);
 mstGraph.populateAdjListFromJSObject(mstExample);
 mstGraph.addControls(mstGraphControls);
 mstGraph.addAlgorithms(["MSTPRIM", "MSTKRUSKAL"]);

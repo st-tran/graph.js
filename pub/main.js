@@ -55,7 +55,16 @@ window.onload = () => {
     const treeGraphCtx = treeGraphCanvas.getContext("2d");
     const treeGraphControls = document.getElementById("tree-graph-controls");
 
-    const treeGraph = new Graph(treeGraphCtx, { edgeColor: "lightblue", activeColor: "blue", edgeWidth: 5, vertexBorderColor: "darkblue" }, "Tree Example");
+    const treeGraph = new Graph(
+        treeGraphCtx,
+        {
+            edgeColor: "lightblue",
+            activeColor: "blue",
+            edgeWidth: 5,
+            vertexBorderColor: "darkblue",
+        },
+        "Tree Example"
+    );
     treeGraph.populateAdjListFromJSObject(treeAdjacencyList);
     treeGraph.addControls(treeGraphControls);
     treeGraph.addAlgorithms(["BFS", "DFS"]);
@@ -65,7 +74,17 @@ window.onload = () => {
     const mstGraphCtx = mstGraphCanvas.getContext("2d");
     const mstGraphControls = document.getElementById("mst-graph-controls");
 
-    const mstGraph = new Graph(mstGraphCtx, { vertexBorderColor: "#f200ff", edgeColor: "#f200ff", activeColor: "purple", edgeWidth: 5, textColor: "#f200ff" }, "MST Example");
+    const mstGraph = new Graph(
+        mstGraphCtx,
+        {
+            vertexBorderColor: "#f200ff",
+            edgeColor: "#f200ff",
+            activeColor: "purple",
+            edgeWidth: 5,
+            textColor: "#f200ff",
+        },
+        "MST Example"
+    );
     mstGraph.populateAdjListFromJSObject(mstExample);
     mstGraph.addControls(mstGraphControls);
     mstGraph.addAlgorithms(["MSTPRIM", "MSTKRUSKAL"]);
